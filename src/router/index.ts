@@ -6,6 +6,8 @@ import Dashboard from "../pages/Dashboard.vue";
 import Applications from "../pages/Applications.vue";
 import RegisterPage from "../pages/RegisterPage.vue";
 import Swal from "sweetalert2";
+import "bootstrap-icons/font/bootstrap-icons.css";
+
 
 // Define your routes
 const routes = [
