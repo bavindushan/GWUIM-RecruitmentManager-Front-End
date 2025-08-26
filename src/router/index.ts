@@ -6,7 +6,7 @@ import Dashboard from "../pages/Dashboard.vue";
 import Applications from "../pages/Applications.vue";
 import RegisterPage from "../pages/RegisterPage.vue";
 import JobDetails from "../pages/JobDetails.vue";
-// import ApplyJob from "../pages/ApplyJob.vue";
+import ApplyJob from "../pages/ApplyJob.vue";
 import Swal from "sweetalert2";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -18,7 +18,7 @@ const routes = [
     { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true } },
     { path: "/applications", component: Applications, meta: { requiresAuth: true } },
     { path: "/job/:jobId", component: JobDetails, meta: { requiresAuth: true } }, // Job details page
-    // { path: "/apply/:jobId", component: ApplyJob, meta: { requiresAuth: true } },   // Apply for job page
+    { path: "/apply/:jobId", component: ApplyJob, meta: { requiresAuth: true } },   // Apply for job page
 ];
 
 const router = createRouter({

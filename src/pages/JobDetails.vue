@@ -40,8 +40,7 @@
     <div class="container py-5 mt-5">
         <div class="card shadow-lg p-5 rounded-4 position-relative" v-if="job">
             <!-- Status Badge -->
-            <span 
-                class="badge position-absolute top-0 end-0 m-3" 
+            <span class="badge position-absolute top-0 end-0 m-3"
                 :class="job.Status === 'Open' ? 'text-bg-success' : 'text-bg-secondary'">
                 {{ job.Status }}
             </span>
@@ -61,6 +60,13 @@
             </div>
         </div>
     </div>
+
+    <!-- Footer Section -->
+    <footer class="footer bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">© 2025 GWUIM Recruitment System. All rights reserved.</p>
+        </div>
+    </footer>
 </template>
 
 <script setup>
@@ -82,7 +88,7 @@ async function fetchJobDetails() {
             headers: { Authorization: `Bearer ${token}` },
         });
         job.value = res.data.data;
-        templateId = res.data.data.TemplateID; 
+        templateId = res.data.data.TemplateID;
     } catch (err) {
         console.error(err);
         Swal.fire("Error", "Failed to load job details.", "error");
@@ -110,7 +116,8 @@ onMounted(fetchJobDetails);
 .card {
     background-color: #fff;
     border-radius: 10px;
-    margin-top: 20px; /* space below navbar */
+    margin-top: 20px;
+    /* space below navbar */
     padding: 2.5rem 2rem;
     transition: all 0.3s ease;
 }
