@@ -45,10 +45,10 @@
             <!-- Filter Section -->
             <div class="row g-3 mt-2">
                 <div class="col-md-3">
-                    <select class="form-select" v-model="selectedCategory">
-                        <option value="">Select Category</option>
+                    <select class="form-select" v-model="selectedType">
+                        <option value="">Select Type</option>
                         <option value="Academic">Academic</option>
-                        <option value="NonAcademic">Non-Academic</option>
+                        <option value="Non_Academic">Non-Academic</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -57,6 +57,7 @@
                         <option value="IT">IT</option>
                         <option value="HR">HR</option>
                         <option value="Finance">Finance</option>
+                        <option value="Computer Science">Computer Science</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -68,23 +69,19 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <select class="form-select" v-model="selectedType">
-                        <option value="">Select Type</option>
-                        <option value="full">Full</option>
-                        <option value="part">Part</option>
-                        <option value="intern">Intern</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
                     <input type="date" class="form-control" v-model="selectedDate" />
                 </div>
             </div>
 
             <div class="text-end mt-3">
-                <button class="btn btn-primary" @click="applyFilters">
+                <button class="btn btn-primary me-2" @click="applyFilters">
                     <i class="bi bi-funnel me-2"></i> Apply Filters
                 </button>
+                <button class="btn btn-primary me-2y" @click="resetFilters">
+                    <i class="bi bi-arrow-counterclockwise me-2"></i> Reset
+                </button>
             </div>
+
 
             <!-- Job Table -->
             <div class="table-responsive mt-4">
@@ -104,7 +101,8 @@
                             <td>
                                 <div style="background-color: #e8fae6; border-radius: 5px; padding: 8px;">
                                     <small>{{ job.Title }}</small>
-                                </div></td>
+                                </div>
+                            </td>
                             <td>
                                 <div style="background-color: #e8fae6; border-radius: 5px; padding: 8px;">
                                     <small>{{ job.Level }}</small>
@@ -156,19 +154,19 @@ const currentPage = ref(1);
 const pageSize = 5;
 
 // Filters
-const selectedCategory = ref("");
 const selectedDepartment = ref("");
 const selectedLevel = ref("");
 const selectedType = ref("");
 const selectedDate = ref("");
 
-// Fetch jobs
+// Fetch jobs on page load
 onMounted(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
     if (userData?.FullName) username.value = userData.FullName;
     fetchJobs();
 });
 
+// Fetch all jobs (initial load)
 async function fetchJobs() {
     try {
         const token = localStorage.getItem("token");
@@ -182,16 +180,40 @@ async function fetchJobs() {
     }
 }
 
+// Fetch filtered jobs
+async function fetchFilteredJobs(filters) {
+    try {
+        const queryParams = new URLSearchParams(filters).toString();
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`http://localhost:5000/api/jobs/filter?${queryParams}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        jobs.value = res.data.data.jobs || [];
+        currentPage.value = 1; // reset pagination after filtering
+    } catch (err) {
+        console.error("Error fetching filtered jobs:", err);
+        Swal.fire("Error", "Failed to fetch filtered jobs.", "error");
+    }
+}
+
+// Apply filters when button is clicked
 function applyFilters() {
-    console.log("Filters applied:", {
-        category: selectedCategory.value,
+    const filters = {
         department: selectedDepartment.value,
         level: selectedLevel.value,
         type: selectedType.value,
-        date: selectedDate.value
+        closingDate: selectedDate.value
+    };
+
+    // Remove empty filters before sending
+    Object.keys(filters).forEach((key) => {
+        if (!filters[key]) delete filters[key];
     });
+
+    fetchFilteredJobs(filters);
 }
 
+// Pagination
 function changePage(page) {
     currentPage.value = page;
 }
@@ -231,6 +253,7 @@ function logout() {
     });
 }
 </script>
+
 
 <style>
 .navbar-nav .nav-link {
