@@ -97,7 +97,8 @@
                     </thead>
                     <tbody>
                         <tr v-for="(job, index) in paginatedJobs" :key="job.JobID"
-                            :style="{ backgroundColor: index % 2 === 0 ? '#fffafa' : '#f8f0f0' }">
+                            :style="{ backgroundColor: index % 2 === 0 ? '#fffafa' : '#f8f0f0', cursor: 'pointer' }"
+                            @click="goToJobDetails(job.JobID)">
                             <td>
                                 <div style="background-color: #e8fae6; border-radius: 5px; padding: 8px;">
                                     <small>{{ job.Title }}</small>
@@ -233,6 +234,7 @@ function formatDate(dateString) {
 function goToDashboard() { router.push("/dashboard"); }
 function goToApplications() { router.push("/applications"); }
 function goToSettings() { router.push("/settings"); }
+function goToJobDetails(jobId) { router.push(`/job/${jobId}`); }
 
 function logout() {
     Swal.fire({
