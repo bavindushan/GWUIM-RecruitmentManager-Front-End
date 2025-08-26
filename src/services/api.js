@@ -1,6 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 import Swal from "sweetalert2";
+import router from "@/router"; // Import Vue Router instance
 
 // Create Axios instance
 const api = axios.create({
@@ -27,22 +28,26 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response) {
-            // Handle known error responses
             const status = error.response.status;
-            if (status === 401) {
-                Swal.fire("Unauthorized", "Please login to continue.", "warning");
-                localStorage.removeItem("token");
-                window.location.href = "/login"; // Redirect to login
-            } else if (status === 403) {
-                Swal.fire("Forbidden", "You do not have permission.", "error");
-            } else if (status === 404) {
-                Swal.fire("Not Found", "Requested resource not found.", "error");
-            } else {
-                Swal.fire(
-                    "Error",
-                    error.response.data.message || "Something went wrong.",
-                    "error"
-                );
+
+            switch (status) {
+                case 401:
+                    Swal.fire("Unauthorized", "Please login to continue.", "warning");
+                    localStorage.removeItem("token");
+                    router.push("/login"); // Navigate using Vue Router
+                    break;
+                case 403:
+                    Swal.fire("Forbidden", "You do not have permission.", "error");
+                    break;
+                case 404:
+                    Swal.fire("Not Found", "Requested resource not found.", "error");
+                    break;
+                default:
+                    Swal.fire(
+                        "Error",
+                        error.response.data.message || "Something went wrong.",
+                        "error"
+                    );
             }
         } else {
             Swal.fire("Error", "Network error or server not reachable.", "error");
