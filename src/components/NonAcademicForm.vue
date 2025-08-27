@@ -198,7 +198,6 @@
                 <i class="bi bi-x-circle me-2"></i> Remove All Details Submitted
             </button>
         </div>
-
     </div>
 </template>
 
@@ -286,7 +285,6 @@ export default {
             });
             Swal.fire('Saved!', 'Special Qualifications saved successfully.', 'success');
         },
-
         // CV
         async submitCV() {
             if (!this.cvFile) {
