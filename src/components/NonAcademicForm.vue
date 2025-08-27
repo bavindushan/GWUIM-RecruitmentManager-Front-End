@@ -192,7 +192,7 @@
                 </div>
             </div>
         </div>
-        <!-- delete all details-->>
+        <!-- delete all details-->
         <div class="text-center mt-4">
             <button class="btn btn-danger btn-lg" @click="deleteAllApplicationData">
                 <i class="bi bi-x-circle me-2"></i> Remove All Details Submitted

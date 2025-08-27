@@ -87,17 +87,16 @@
                 </h5>
 
                 <form @submit.prevent="saveGeneralDetails" class="row g-3">
-                    <!-- Post Applied -->
+                    <!-- Post Applied (Read-only) -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-briefcase me-1"></i> Post Applied</label>
-                        <input v-model="generalDetails.PostApplied" type="text" class="form-control form-control-lg"
-                            placeholder="Post Applied" />
+                        <input type="text" class="form-control form-control-lg" :value="job?.Title" readonly />
                     </div>
 
                     <!-- Full Name -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-card-text me-1"></i> Full Name</label>
-                        <input v-model="generalDetails.FullName" type="text" class="form-control form-control-lg"
+                        <input type="text" class="form-control form-control-lg"
                             placeholder="Full Name" />
                     </div>
 
@@ -105,27 +104,27 @@
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-person-lines-fill me-1"></i> Name with
                             Initials</label>
-                        <input v-model="generalDetails.NameWithInitials" type="text"
+                        <input type="text"
                             class="form-control form-control-lg" placeholder="Name with Initials" />
                     </div>
 
                     <!-- NIC -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-passport me-1"></i> NIC</label>
-                        <input v-model="generalDetails.NIC" type="text" class="form-control form-control-lg"
+                        <input type="text" class="form-control form-control-lg"
                             placeholder="NIC Number" />
                     </div>
 
                     <!-- DOB -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-cake2 me-1"></i> Date of Birth</label>
-                        <input v-model="generalDetails.DOB" type="date" class="form-control form-control-lg" />
+                        <input type="date" class="form-control form-control-lg" />
                     </div>
 
                     <!-- Gender -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-gender-ambiguous me-1"></i> Gender</label>
-                        <select v-model="generalDetails.Gender" class="form-select form-select-lg">
+                        <select class="form-select form-select-lg">
                             <option value="" disabled>Select gender</option>
                             <option>Male</option>
                             <option>Female</option>
@@ -136,35 +135,35 @@
                     <!-- Phone -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-telephone me-1"></i> Phone Number</label>
-                        <input v-model="generalDetails.PhoneNumber" type="tel" class="form-control form-control-lg"
+                        <input type="tel" class="form-control form-control-lg"
                             placeholder="07XXXXXXXX" />
                     </div>
 
                     <!-- Email -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-envelope me-1"></i> Email</label>
-                        <input v-model="generalDetails.Email" type="email" class="form-control form-control-lg"
+                        <input type="email" class="form-control form-control-lg"
                             placeholder="name@example.com" />
                     </div>
 
                     <!-- Present Address -->
                     <div class="col-12">
                         <label class="form-label"><i class="bi bi-geo-alt me-1"></i> Present Address</label>
-                        <input v-model="generalDetails.PresentAddress" type="text" class="form-control form-control-lg"
+                        <input type="text" class="form-control form-control-lg"
                             placeholder="Present Address" />
                     </div>
 
                     <!-- Permanent Address -->
                     <div class="col-12">
                         <label class="form-label"><i class="bi bi-pin-map me-1"></i> Permanent Address</label>
-                        <input v-model="generalDetails.PermanentAddress" type="text"
+                        <input type="text"
                             class="form-control form-control-lg" placeholder="Permanent Address" />
                     </div>
 
                     <!-- Civil Status / Citizenship -->
                     <div class="col-md-4">
                         <label class="form-label"><i class="bi bi-people me-1"></i> Civil Status</label>
-                        <select v-model="generalDetails.CivilStatus" class="form-select form-select-lg">
+                        <select class="form-select form-select-lg">
                             <option value="" disabled>Select</option>
                             <option>Single</option>
                             <option>Married</option>
@@ -174,20 +173,20 @@
 
                     <div class="col-md-4">
                         <label class="form-label"><i class="bi bi-flag me-1"></i> Citizenship Type</label>
-                        <input v-model="generalDetails.CitizenshipType" type="text" class="form-control form-control-lg"
+                        <input type="text" class="form-control form-control-lg"
                             placeholder="e.g., Descent" />
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label"><i class="bi bi-card-list me-1"></i> Citizenship Details</label>
-                        <input v-model="generalDetails.CitizenshipDetails" type="text"
+                        <input type="text"
                             class="form-control form-control-lg" placeholder="Details" />
                     </div>
 
                     <!-- Ethnicity/Religion -->
                     <div class="col-12">
                         <label class="form-label"><i class="bi bi-moon-stars me-1"></i> Ethnicity/Religion</label>
-                        <input v-model="generalDetails.EthnicityOrReligion" type="text"
+                        <input type="text"
                             class="form-control form-control-lg" placeholder="Ethnicity / Religion" />
                     </div>
 
@@ -263,24 +262,6 @@ async function fetchJob() {
         job.value = res.data.data;
     } catch (err) {
         // handled by interceptor if 401/403/404 etc.
-    }
-}
-
-// Prefill from localStorage "user"
-function prefillFromUser() {
-    try {
-        const raw = localStorage.getItem("user");
-        if (!raw) return;
-        const u = JSON.parse(raw);
-
-        if (!generalDetails.value.FullName && u.FullName) generalDetails.value.FullName = u.FullName;
-        if (!generalDetails.value.Email && u.Email) generalDetails.value.Email = u.Email;
-        if (!generalDetails.value.NIC && u.NIC) generalDetails.value.NIC = u.NIC;
-        if (!generalDetails.value.PhoneNumber && u.PhoneNumber) generalDetails.value.PhoneNumber = u.PhoneNumber;
-        if (!generalDetails.value.PresentAddress && u.Address) generalDetails.value.PresentAddress = u.Address;
-        if (!generalDetails.value.PermanentAddress && u.Address) generalDetails.value.PermanentAddress = u.Address;
-    } catch (_) {
-        // ignore parse errors
     }
 }
 
