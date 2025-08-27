@@ -1,226 +1,402 @@
 <template>
-    <div class="p-6 bg-white rounded-xl shadow-lg max-w-5xl mx-auto">
-        <h2 class="text-2xl font-bold mb-4">Non-Academic Job Application</h2>
+    <div class="container py-5">
+        <h2 class="mb-4 text-center">Non-Academic Application</h2>
 
-        <!-- General Details -->
-        <section class="mb-6">
-            <h3 class="text-lg font-semibold mb-2">General Details</h3>
-            <input v-model="generalDetails.PostApplied" placeholder="Post Applied" class="input-field" />
-            <input v-model="generalDetails.FullName" placeholder="Full Name" class="input-field" />
-            <input v-model="generalDetails.NameWithInitials" placeholder="Name with Initials" class="input-field" />
-            <input v-model="generalDetails.NIC" placeholder="NIC" class="input-field" />
-            <input v-model="generalDetails.DOB" type="date" placeholder="Date of Birth" class="input-field" />
-            <input v-model="generalDetails.Gender" placeholder="Gender" class="input-field" />
-            <input v-model="generalDetails.PhoneNumber" placeholder="Phone Number" class="input-field" />
-            <input v-model="generalDetails.Email" type="email" placeholder="Email" class="input-field" />
-            <input v-model="generalDetails.PresentAddress" placeholder="Present Address" class="input-field" />
-            <input v-model="generalDetails.PermanentAddress" placeholder="Permanent Address" class="input-field" />
-            <input v-model="generalDetails.CivilStatus" placeholder="Civil Status" class="input-field" />
-            <input v-model="generalDetails.CitizenshipType" placeholder="Citizenship Type" class="input-field" />
-            <input v-model="generalDetails.CitizenshipDetails" placeholder="Citizenship Details" class="input-field" />
-            <input v-model="generalDetails.EthnicityOrReligion" placeholder="Ethnicity/Religion" class="input-field" />
-        </section>
-
-        <!-- GCE O/L Results -->
-        <section class="mb-6">
-            <h3 class="text-lg font-semibold mb-2">GCE O/L Results</h3>
-            <div v-for="(ol, index) in olResults" :key="index" class="mb-3 p-3 border rounded-lg">
-                <input v-model="ol.ExamYear" type="number" placeholder="Exam Year" class="input-field" />
-                <input v-model="ol.Subject" placeholder="Subject" class="input-field" />
-                <input v-model="ol.Grade" placeholder="Grade" class="input-field" />
-                <button @click="removeOlResult(index)" class="btn-danger mt-2">Remove</button>
+        <!-- 2. GCE O/L Results -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-4"><i class="bi bi-file-text me-2"></i> GCE O/L Results</h5>
+                <div v-for="(ol, index) in olResults" :key="index" class="row g-2 mb-2">
+                    <div class="col-md-3"><input type="number" v-model="ol.ExamYear" class="form-control"
+                            placeholder="Exam Year" /></div>
+                    <div class="col-md-6"><input type="text" v-model="ol.Subject" class="form-control"
+                            placeholder="Subject" /></div>
+                    <div class="col-md-3"><input type="text" v-model="ol.Grade" class="form-control"
+                            placeholder="Grade" /></div>
+                    <div class="col-md-1 d-flex justify-content-center">
+                        <button class="btn btn-danger btn-sm" @click="removeOLRow(index)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-success btn-sm mb-3" @click="addOLRow">
+                    <i class="bi bi-plus-circle me-1"></i> Add O/L Result
+                </button>
+                <div class="text-end">
+                    <button class="btn btn-primary" @click="saveOLResults">
+                        <i class="bi bi-save me-2"></i> Save O/L Results
+                    </button>
+                </div>
             </div>
-            <button @click="addOlResult" class="btn-primary">Add O/L Result</button>
-        </section>
-
-        <!-- GCE A/L Results -->
-        <section class="mb-6">
-            <h3 class="text-lg font-semibold mb-2">GCE A/L Results</h3>
-            <div v-for="(al, index) in alResults" :key="index" class="mb-3 p-3 border rounded-lg">
-                <input v-model="al.Subject" placeholder="Subject" class="input-field" />
-                <input v-model="al.Grade" placeholder="Grade" class="input-field" />
-                <button @click="removeAlResult(index)" class="btn-danger mt-2">Remove</button>
-            </div>
-            <button @click="addAlResult" class="btn-primary">Add A/L Result</button>
-        </section>
-
-        <!-- University Education -->
-        <section class="mb-6">
-            <h3 class="text-lg font-semibold mb-2">University Education</h3>
-            <div v-for="(edu, index) in universityEducations" :key="index" class="mb-3 p-3 border rounded-lg">
-                <input v-model="edu.DegreeOrDiploma" placeholder="Degree/Diploma" class="input-field" />
-                <input v-model="edu.Institute" placeholder="Institute" class="input-field" />
-                <input v-model="edu.FromYear" type="number" placeholder="From Year" class="input-field" />
-                <input v-model="edu.ToYear" type="number" placeholder="To Year" class="input-field" />
-                <input v-model="edu.Class" placeholder="Class" class="input-field" />
-                <input v-model="edu.YearObtained" type="number" placeholder="Year Obtained" class="input-field" />
-                <input v-model="edu.IndexNumber" placeholder="Index Number" class="input-field" />
-                <button @click="removeUniversity(index)" class="btn-danger mt-2">Remove</button>
-            </div>
-            <button @click="addUniversity" class="btn-primary">Add University Education</button>
-        </section>
-
-        <!-- Professional Qualifications -->
-        <section class="mb-6">
-            <h3 class="text-lg font-semibold mb-2">Professional Qualifications</h3>
-            <div v-for="(qual, index) in qualifications" :key="index" class="mb-3 p-3 border rounded-lg">
-                <input v-model="qual.Institution" placeholder="Institution" class="input-field" />
-                <input v-model="qual.QualificationName" placeholder="Qualification Name" class="input-field" />
-                <input v-model="qual.FromYear" type="number" placeholder="From Year" class="input-field" />
-                <input v-model="qual.ToYear" type="number" placeholder="To Year" class="input-field" />
-                <input v-model="qual.ResultOrExamPassed" placeholder="Result/Exam Passed" class="input-field" />
-                <button @click="removeQualification(index)" class="btn-danger mt-2">Remove</button>
-            </div>
-            <button @click="addQualification" class="btn-primary">Add Qualification</button>
-        </section>
-
-        <!-- Experience Details -->
-        <section class="mb-6">
-            <h3 class="text-lg font-semibold mb-2">Experience Details</h3>
-            <div v-for="(exp, index) in experienceDetails" :key="index" class="mb-3 p-3 border rounded-lg">
-                <input v-model="exp.Description" placeholder="Description" class="input-field" />
-                <button @click="removeExperience(index)" class="btn-danger mt-2">Remove</button>
-            </div>
-            <button @click="addExperience" class="btn-primary">Add Experience</button>
-        </section>
-
-        <!-- Special Qualifications -->
-        <section class="mb-6">
-            <h3 class="text-lg font-semibold mb-2">Special Qualifications / Extra-curricular</h3>
-            <div v-for="(sq, index) in specialQualifications" :key="index" class="mb-3 p-3 border rounded-lg">
-                <input v-model="sq.Description" placeholder="Description" class="input-field" />
-                <button @click="removeSpecial(index)" class="btn-danger mt-2">Remove</button>
-            </div>
-            <button @click="addSpecial" class="btn-primary">Add Special Qualification</button>
-        </section>
-
-        <!-- Submit -->
-        <div class="mt-6">
-            <button @click="handleSubmit" class="btn-success">Submit Application</button>
         </div>
+
+        <!-- 3. GCE A/L Results -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-4"><i class="bi bi-file-text me-2"></i> GCE A/L Results</h5>
+                <div v-for="(al, index) in alResults" :key="index" class="row g-2 mb-2">
+                    <div class="col-md-3"><input type="number" v-model="al.ExamYear" class="form-control"
+                            placeholder="Exam Year" /></div>
+                    <div class="col-md-6"><input type="text" v-model="al.Subject" class="form-control"
+                            placeholder="Subject" /></div>
+                    <div class="col-md-3"><input type="text" v-model="al.Grade" class="form-control"
+                            placeholder="Grade" /></div>
+                    <div class="col-md-1 d-flex justify-content-center">
+                        <button class="btn btn-danger btn-sm" @click="removeALRow(index)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-success btn-sm mb-3" @click="addALRow">
+                    <i class="bi bi-plus-circle me-1"></i> Add A/L Result
+                </button>
+                <div class="text-end">
+                    <button class="btn btn-primary" @click="saveALResults">
+                        <i class="bi bi-save me-2"></i> Save A/L Results
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. University Education -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-4"><i class="bi bi-mortarboard me-2"></i> University Education</h5>
+                <div v-for="(edu, index) in universityEducations" :key="index" class="row g-2 mb-2">
+                    <div class="col-md-4"><input type="text" v-model="edu.DegreeOrDiploma" class="form-control"
+                            placeholder="Degree / Diploma" /></div>
+                    <div class="col-md-4"><input type="text" v-model="edu.Institute" class="form-control"
+                            placeholder="Institute" /></div>
+                    <div class="col-md-2"><input type="number" v-model="edu.FromYear" class="form-control"
+                            placeholder="From Year" /></div>
+                    <div class="col-md-2"><input type="number" v-model="edu.ToYear" class="form-control"
+                            placeholder="To Year" /></div>
+                    <div class="col-md-2"><input type="text" v-model="edu.Class" class="form-control"
+                            placeholder="Class" /></div>
+                    <div class="col-md-2"><input type="number" v-model="edu.YearObtained" class="form-control"
+                            placeholder="Year Obtained" /></div>
+                    <div class="col-md-2"><input type="text" v-model="edu.IndexNumber" class="form-control"
+                            placeholder="Index Number" /></div>
+                    <div class="col-md-1 d-flex justify-content-center">
+                        <button class="btn btn-danger btn-sm" @click="removeUniversityRow(index)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-success btn-sm mb-3" @click="addUniversityRow">
+                    <i class="bi bi-plus-circle me-1"></i> Add University
+                </button>
+                <div class="text-end">
+                    <button class="btn btn-primary" @click="saveUniversityEducation">
+                        <i class="bi bi-save me-2"></i> Save University Education
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Professional Qualifications -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-4"><i class="bi bi-award me-2"></i> Professional Qualifications</h5>
+                <div v-for="(pq, index) in professionalQualifications" :key="index" class="row g-2 mb-2">
+                    <div class="col-md-4"><input type="text" v-model="pq.Institution" class="form-control"
+                            placeholder="Institution" /></div>
+                    <div class="col-md-4"><input type="text" v-model="pq.QualificationName" class="form-control"
+                            placeholder="Qualification Name" /></div>
+                    <div class="col-md-2"><input type="number" v-model="pq.FromYear" class="form-control"
+                            placeholder="From Year" /></div>
+                    <div class="col-md-2"><input type="number" v-model="pq.ToYear" class="form-control"
+                            placeholder="To Year" /></div>
+                    <div class="col-md-2"><input type="text" v-model="pq.ResultOrExamPassed" class="form-control"
+                            placeholder="Result / Exam Passed" /></div>
+                    <div class="col-md-1 d-flex justify-content-center">
+                        <button class="btn btn-danger btn-sm" @click="removePQRow(index)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-success btn-sm mb-3" @click="addPQRow">
+                    <i class="bi bi-plus-circle me-1"></i> Add Qualification
+                </button>
+                <div class="text-end">
+                    <button class="btn btn-primary" @click="saveProfessionalQualifications">
+                        <i class="bi bi-save me-2"></i> Save Professional Qualifications
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Experience Details -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-4"><i class="bi bi-briefcase me-2"></i> Experience Details</h5>
+                <div v-for="(exp, index) in experienceDetails" :key="index" class="row g-2 mb-2">
+                    <div class="col-md-11"><input type="text" v-model="exp.Description" class="form-control"
+                            placeholder="Description" /></div>
+                    <div class="col-md-1 d-flex justify-content-center">
+                        <button class="btn btn-danger btn-sm" @click="removeExpRow(index)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-success btn-sm mb-3" @click="addExpRow">
+                    <i class="bi bi-plus-circle me-1"></i> Add Experience
+                </button>
+                <div class="text-end">
+                    <button class="btn btn-primary" @click="saveExperienceDetails">
+                        <i class="bi bi-save me-2"></i> Save Experience Details
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Special Qualifications -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-4"><i class="bi bi-star me-2"></i> Special Qualifications</h5>
+                <div v-for="(sq, index) in specialQualifications" :key="index" class="row g-2 mb-2">
+                    <div class="col-md-11"><input type="text" v-model="sq.Description" class="form-control"
+                            placeholder="Description" /></div>
+                    <div class="col-md-1 d-flex justify-content-center">
+                        <button class="btn btn-danger btn-sm" @click="removeSQRow(index)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-success btn-sm mb-3" @click="addSQRow">
+                    <i class="bi bi-plus-circle me-1"></i> Add Special Qualification
+                </button>
+                <div class="text-end">
+                    <button class="btn btn-primary" @click="saveSpecialQualifications">
+                        <i class="bi bi-save me-2"></i> Save Special Qualifications
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. CV Upload -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-4"><i class="bi bi-file-earmark-arrow-up me-2"></i> CV Upload</h5>
+
+                <input type="file" @change="handleCVUpload" class="form-control mb-3" />
+
+                <div v-if="cvFilePath" class="mb-3">
+                    <p>Uploaded File: <a :href="cvFilePath" target="_blank">{{ cvFilePath }}</a></p>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success btn-sm" @click="submitCV"><i class="bi bi-upload me-1"></i>
+                            Submit CV</button>
+                        <button class="btn btn-danger btn-sm" @click="deleteCV"><i class="bi bi-trash me-1"></i> Delete
+                            CV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- delete all details-->>
+        <div class="text-center mt-4">
+            <button class="btn btn-danger btn-lg" @click="deleteAllApplicationData">
+                <i class="bi bi-x-circle me-2"></i> Remove All Details Submitted
+            </button>
+        </div>
+
     </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script>
+import axios from 'axios';
 import Swal from "sweetalert2";
-import api from "@/services/api"; // centralized Axios instance
 
-const jobId = 1; // you can dynamically get it from route params
+export default {
+    props: ['jobId', 'applicationId'],
+    data() {
+        return {
+            olResults: [],
+            alResults: [],
+            universityEducations: [],
+            professionalQualifications: [],
+            experienceDetails: [],
+            specialQualifications: [],
+            cvFile: null,
+            cvFilePath: ''
+        };
+    },
+    methods: {
+        // O/L Results
+        addOLRow() { this.olResults.push({ ExamYear: '', Subject: '', Grade: '' }); },
+        removeOLRow(index) { this.olResults.splice(index, 1); },
+        async saveOLResults() {
+            await axios.post('http://localhost:5000/api/applications/gce-ol-results', {
+                jobId: this.jobId,
+                olResults: this.olResults
+            });
+            Swal.fire('Saved!', 'O/L Results saved successfully.', 'success');
+        },
 
-// General Details
-const generalDetails = ref({
-    PostApplied: "",
-    FullName: "",
-    NameWithInitials: "",
-    NIC: "",
-    DOB: "",
-    Gender: "",
-    PhoneNumber: "",
-    Email: "",
-    PresentAddress: "",
-    PermanentAddress: "",
-    CivilStatus: "",
-    CitizenshipType: "",
-    CitizenshipDetails: "",
-    EthnicityOrReligion: ""
-});
+        // A/L Results
+        addALRow() { this.alResults.push({ ExamYear: '', Subject: '', Grade: '' }); },
+        removeALRow(index) { this.alResults.splice(index, 1); },
+        async saveALResults() {
+            await axios.post('http://localhost:5000/api/applications/gce-al-results', {
+                jobId: this.jobId,
+                alResults: this.alResults
+            });
+            Swal.fire('Saved!', 'A/L Results saved successfully.', 'success');
+        },
 
-// GCE O/L & A/L
-const olResults = ref([]);
-const alResults = ref([]);
+        // University Education
+        addUniversityRow() { this.universityEducations.push({ DegreeOrDiploma: '', Institute: '', FromYear: '', ToYear: '', Class: '', YearObtained: '', IndexNumber: '' }); },
+        removeUniversityRow(index) { this.universityEducations.splice(index, 1); },
+        async saveUniversityEducation() {
+            await axios.post('http://localhost:5000/api/applications/university-educations', {
+                jobId: this.jobId,
+                universityEducations: this.universityEducations
+            });
+            Swal.fire('Saved!', 'University Education saved successfully.', 'success');
+        },
 
-// University Education
-const universityEducations = ref([]);
+        // Professional Qualifications
+        addPQRow() { this.professionalQualifications.push({ Institution: '', QualificationName: '', FromYear: '', ToYear: '', ResultOrExamPassed: '' }); },
+        removePQRow(index) { this.professionalQualifications.splice(index, 1); },
+        async saveProfessionalQualifications() {
+            await axios.post('http://localhost:5000/api/applications/professional-qualifications', {
+                jobId: this.jobId,
+                qualifications: this.professionalQualifications
+            });
+            Swal.fire('Saved!', 'Professional Qualifications saved successfully.', 'success');
+        },
 
-// Professional Qualifications
-const qualifications = ref([]);
+        // Experience
+        addExpRow() { this.experienceDetails.push({ Description: '' }); },
+        removeExpRow(index) { this.experienceDetails.splice(index, 1); },
+        async saveExperienceDetails() {
+            await axios.post('http://localhost:5000/api/applications/experience-details', {
+                jobId: this.jobId,
+                experienceDetails: this.experienceDetails
+            });
+            Swal.fire('Saved!', 'Experience Details saved successfully.', 'success');
+        },
 
-// Experience Details
-const experienceDetails = ref([]);
+        // Special Qualifications
+        addSQRow() { this.specialQualifications.push({ Description: '' }); },
+        removeSQRow(index) { this.specialQualifications.splice(index, 1); },
+        async saveSpecialQualifications() {
+            await axios.post('http://localhost:5000/api/applications/special-qualifications', {
+                jobId: this.jobId,
+                specialQualifications: this.specialQualifications
+            });
+            Swal.fire('Saved!', 'Special Qualifications saved successfully.', 'success');
+        },
 
-// Special Qualifications
-const specialQualifications = ref([]);
+        // CV
+        async submitCV() {
+            if (!this.cvFile) {
+                Swal.fire('Warning!', "Please select a file first!", 'warning');
+                return;
+            }
 
-// Methods to add/remove dynamically
-const addOlResult = () => olResults.value.push({ ExamYear: "", Subject: "", Grade: "" });
-const removeOlResult = (i) => olResults.value.splice(i, 1);
+            const formData = new FormData();
+            formData.append("file", this.cvFile);
 
-const addAlResult = () => alResults.value.push({ Subject: "", Grade: "" });
-const removeAlResult = (i) => alResults.value.splice(i, 1);
+            try {
+                // 1. Upload file to server
+                const uploadResponse = await fetch("http://localhost:5000/api/files/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                const uploadData = await uploadResponse.json();
 
-const addUniversity = () => universityEducations.value.push({ DegreeOrDiploma: "", Institute: "", FromYear: "", ToYear: "", Class: "", YearObtained: "", IndexNumber: "" });
-const removeUniversity = (i) => universityEducations.value.splice(i, 1);
+                if (uploadData.filePath) {
+                    this.cvFilePath = uploadData.filePath;
 
-const addQualification = () => qualifications.value.push({ Institution: "", QualificationName: "", FromYear: "", ToYear: "", ResultOrExamPassed: "" });
-const removeQualification = (i) => qualifications.value.splice(i, 1);
+                    // 2. Save file path to application
+                    const saveResponse = await fetch("http://localhost:5000/api/applications/attachments", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            applicationId: this.jobId, // or actual applicationId
+                            fileType: "resume/pdf",
+                            filePath: uploadData.filePath
+                        })
+                    });
 
-const addExperience = () => experienceDetails.value.push({ Description: "" });
-const removeExperience = (i) => experienceDetails.value.splice(i, 1);
+                    const saveData = await saveResponse.json();
+                    Swal.fire('Uploaded!', "CV uploaded successfully!", 'success');
+                }
 
-const addSpecial = () => specialQualifications.value.push({ Description: "" });
-const removeSpecial = (i) => specialQualifications.value.splice(i, 1);
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error!', "Error uploading CV", 'error');
+            }
+        },
 
-// Handle Submission
-const handleSubmit = async () => {
-    try {
-        // 1️⃣ General Details
-        await api.post("/api/applications/general-details", { jobId, generalDetails: generalDetails.value });
+        async deleteCV() {
+            if (!this.cvFilePath) return;
 
-        // 2️⃣ GCE O/L
-        if (olResults.value.length) await api.post("/api/applications/gce-ol-results", { jobId, olResults: olResults.value });
+            try {
+                // Extract filename from path
+                const filename = this.cvFilePath.split("/").pop();
+                await fetch(`http://localhost:5000/api/files/delete/${filename}`, {
+                    method: "DELETE"
+                });
 
-        // 3️⃣ GCE A/L
-        if (alResults.value.length) await api.post("/api/applications/gce-al-results", { jobId, alResults: alResults.value });
+                // Clear local state
+                this.cvFile = null;
+                this.cvFilePath = '';
+                Swal.fire('Deleted!', "CV deleted successfully!", 'success');
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error!', "Error deleting CV", 'error');
+            }
+        },
 
-        // 4️⃣ University Education
-        if (universityEducations.value.length) await api.post("/api/applications/university-educations", { jobId, universityEducations: universityEducations.value });
+        async deleteAllApplicationData() {
+            // Show SweetAlert2 confirmation
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "This will delete all your application data and cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete all!',
+                cancelButtonText: 'Cancel'
+            });
 
-        // 5️⃣ Professional Qualifications
-        if (qualifications.value.length) await api.post("/api/applications/professional-qualifications", { jobId, qualifications: qualifications.value });
+            if (!result.isConfirmed) {
+                return; // User cancelled
+            }
 
-        // 6️⃣ Experience Details
-        if (experienceDetails.value.length) await api.post("/api/applications/experience-details", { jobId, experienceDetails: experienceDetails.value });
+            try {
+                await axios.delete(`http://localhost:5000/api/applications/delete-all-na/${this.applicationId}`);
 
-        // 7️⃣ Special Qualifications
-        if (specialQualifications.value.length) await api.post("/api/applications/special-qualifications", { jobId, specialQualifications: specialQualifications.value });
+                // Clear frontend state
+                this.olResults = [];
+                this.alResults = [];
+                this.universityEducations = [];
+                this.professionalQualifications = [];
+                this.experienceDetails = [];
+                this.specialQualifications = [];
+                this.cvFile = null;
+                this.cvFilePath = '';
 
-        Swal.fire("Success!", "Application submitted successfully!", "success");
-    } catch (error) {
-        Swal.fire("Error", "Submission failed. Please try again.", "error");
+                Swal.fire('Deleted!', 'All application details have been deleted.', 'success');
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error!', 'Failed to delete application details.', 'error');
+            }
+        }
     }
 };
 </script>
 
+
 <style scoped>
-.input-field {
-    display: block;
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 8px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+.card {
+    transition: all 0.3s ease;
 }
 
-.btn-primary {
-    background-color: #3498db;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 8px;
-}
-
-.btn-danger {
-    background-color: #e74c3c;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 8px;
-}
-
-.btn-success {
-    background-color: #2ecc71;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 8px;
-    width: 100%;
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 </style>

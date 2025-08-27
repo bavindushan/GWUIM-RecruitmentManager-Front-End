@@ -80,6 +80,7 @@ const router = useRouter();
 const job = ref(null);
 const jobId = route.params.jobId;
 let templateId = null;
+let templateType = null;
 
 async function fetchJobDetails() {
     try {
@@ -89,6 +90,7 @@ async function fetchJobDetails() {
         });
         job.value = res.data.data;
         templateId = res.data.data.TemplateID;
+        templateType = res.data.data.Type;
     } catch (err) {
         console.error(err);
         Swal.fire("Error", "Failed to load job details.", "error");
@@ -96,7 +98,7 @@ async function fetchJobDetails() {
 }
 
 function applyForJob() {
-    router.push({ path: `/apply/${jobId}`, query: { templateId } });
+    router.push({ path: `/apply/${jobId}`, query: { templateId, templateType } });
 }
 
 function formatDate(dateString) {

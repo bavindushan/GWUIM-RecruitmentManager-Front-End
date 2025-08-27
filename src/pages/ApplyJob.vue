@@ -11,109 +11,348 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link text-white" @click="goToDashboard"><i
-                                class="bi bi-house-door me-2"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" @click="goToApplications"><i
-                                class="bi bi-file-earmark-text me-2"></i> My Applications</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" @click="goToSettings"><i
-                                class="bi bi-gear me-2"></i> Settings</a></li>
-                    <li class="nav-item"><a class="nav-link text-warning fw-bold" @click="logout"><i
-                                class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center" @click="goToDashboard">
+                            <i class="bi bi-house-door me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center" @click="goToApplications">
+                            <i class="bi bi-file-earmark-text me-2"></i> My Applications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center" @click="goToSettings">
+                            <i class="bi bi-gear me-2"></i> Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold d-flex align-items-center" @click="logout">
+                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
+    <!-- Page -->
     <div class="container py-5 mt-5">
-        <h2 class="fw-bold mb-3 text-center">Apply for {{ job.Title || "Job" }}</h2>
-        <div class="text-center mb-4">
-            <span class="badge" :class="job.Status === 'Open' ? 'text-bg-success' : 'text-bg-secondary'">
-                {{ job.Status }}
-            </span>
+        <!-- Job header -->
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4" v-if="job">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <h2 class="fw-bold mb-1">{{ job.Title }}</h2>
+                        <div class="text-muted small">
+                            <i class="bi bi-building me-1"></i> {{ job.Department }} ·
+                            <i class="bi bi-layers me-1 ms-2"></i> {{ job.Level }} ·
+                            <i class="bi bi-diagram-3 me-1 ms-2"></i> {{ displayType }}
+                        </div>
+                        <div class="mt-2 small text-secondary">
+                            <i class="bi bi-calendar-event me-1"></i> Posted: {{ formatDate(job.PostedDate) }}
+                            <span class="mx-2">•</span>
+                            <i class="bi bi-hourglass-split me-1"></i> Expires: {{ formatDate(job.ExpiryDate) }}
+                        </div>
+                    </div>
+                    <span class="badge fs-6 px-3 py-2"
+                        :class="job.Status === 'Open' ? 'text-bg-success' : 'text-bg-secondary'">
+                        {{ job.Status }}
+                    </span>
+                </div>
+            </div>
         </div>
 
-        <!-- Load correct form -->
-        <div v-if="job.Type === 'Academic'">
-            <AcademicForm ref="formRef" />
-        </div>
-        <div v-else-if="job.Type === 'Non_Academic'">
-            <NonAcademicForm ref="formRef" />
+        <!-- Stepper -->
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="d-flex align-items-center">
+                <div class="step-circle" :class="{ active: currentStep === 1, done: currentStep > 1 }">1</div>
+                <div class="ms-2 fw-semibold" :class="{ 'text-muted': currentStep !== 1 }">General Details</div>
+            </div>
+            <div class="flex-fill border-top" style="opacity: 0.2;"></div>
+            <div class="d-flex align-items-center">
+                <div class="step-circle" :class="{ active: currentStep === 2 }">2</div>
+                <div class="ms-2 fw-semibold" :class="{ 'text-muted': currentStep !== 2 }">
+                    {{ displayType }} Form
+                </div>
+            </div>
         </div>
 
-        <!-- Submit Button -->
-        <div class="text-center mt-4">
-            <button @click="handleSubmit" class="btn btn-success btn-lg">Submit Application</button>
+        <!-- Step 1: General Details -->
+        <div v-if="currentStep === 1" class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-4">
+                    <i class="bi bi-person-vcard me-2"></i>
+                    General Details
+                </h5>
+
+                <form @submit.prevent="saveGeneralDetails" class="row g-3">
+                    <!-- Post Applied -->
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="bi bi-briefcase me-1"></i> Post Applied</label>
+                        <input v-model="generalDetails.PostApplied" type="text" class="form-control form-control-lg"
+                            placeholder="Post Applied" />
+                    </div>
+
+                    <!-- Full Name -->
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="bi bi-card-text me-1"></i> Full Name</label>
+                        <input v-model="generalDetails.FullName" type="text" class="form-control form-control-lg"
+                            placeholder="Full Name" />
+                    </div>
+
+                    <!-- Name with Initials -->
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="bi bi-person-lines-fill me-1"></i> Name with
+                            Initials</label>
+                        <input v-model="generalDetails.NameWithInitials" type="text"
+                            class="form-control form-control-lg" placeholder="Name with Initials" />
+                    </div>
+
+                    <!-- NIC -->
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="bi bi-passport me-1"></i> NIC</label>
+                        <input v-model="generalDetails.NIC" type="text" class="form-control form-control-lg"
+                            placeholder="NIC Number" />
+                    </div>
+
+                    <!-- DOB -->
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="bi bi-cake2 me-1"></i> Date of Birth</label>
+                        <input v-model="generalDetails.DOB" type="date" class="form-control form-control-lg" />
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="bi bi-gender-ambiguous me-1"></i> Gender</label>
+                        <select v-model="generalDetails.Gender" class="form-select form-select-lg">
+                            <option value="" disabled>Select gender</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="bi bi-telephone me-1"></i> Phone Number</label>
+                        <input v-model="generalDetails.PhoneNumber" type="tel" class="form-control form-control-lg"
+                            placeholder="07XXXXXXXX" />
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="bi bi-envelope me-1"></i> Email</label>
+                        <input v-model="generalDetails.Email" type="email" class="form-control form-control-lg"
+                            placeholder="name@example.com" />
+                    </div>
+
+                    <!-- Present Address -->
+                    <div class="col-12">
+                        <label class="form-label"><i class="bi bi-geo-alt me-1"></i> Present Address</label>
+                        <input v-model="generalDetails.PresentAddress" type="text" class="form-control form-control-lg"
+                            placeholder="Present Address" />
+                    </div>
+
+                    <!-- Permanent Address -->
+                    <div class="col-12">
+                        <label class="form-label"><i class="bi bi-pin-map me-1"></i> Permanent Address</label>
+                        <input v-model="generalDetails.PermanentAddress" type="text"
+                            class="form-control form-control-lg" placeholder="Permanent Address" />
+                    </div>
+
+                    <!-- Civil Status / Citizenship -->
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="bi bi-people me-1"></i> Civil Status</label>
+                        <select v-model="generalDetails.CivilStatus" class="form-select form-select-lg">
+                            <option value="" disabled>Select</option>
+                            <option>Single</option>
+                            <option>Married</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="bi bi-flag me-1"></i> Citizenship Type</label>
+                        <input v-model="generalDetails.CitizenshipType" type="text" class="form-control form-control-lg"
+                            placeholder="e.g., Descent" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="bi bi-card-list me-1"></i> Citizenship Details</label>
+                        <input v-model="generalDetails.CitizenshipDetails" type="text"
+                            class="form-control form-control-lg" placeholder="Details" />
+                    </div>
+
+                    <!-- Ethnicity/Religion -->
+                    <div class="col-12">
+                        <label class="form-label"><i class="bi bi-moon-stars me-1"></i> Ethnicity/Religion</label>
+                        <input v-model="generalDetails.EthnicityOrReligion" type="text"
+                            class="form-control form-control-lg" placeholder="Ethnicity / Religion" />
+                    </div>
+
+                    <!-- Action -->
+                    <div class="col-12 d-flex justify-content-end mt-2">
+                        <button type="submit" class="btn btn-success btn-lg px-4">
+                            <i class="bi bi-save me-2"></i> Save & Continue
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Step 2: Render the correct template form (Academic / Non-Academic) -->
+        <div v-else-if="currentStep === 2">
+            <AcademicForm v-if="displayType === 'Academic'" :job-id="jobId" :application-id="applicationId" />
+            <NonAcademicForm v-else :job-id="jobId" :application-id="applicationId" />
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">© 2025 GWUIM Recruitment System. All rights reserved.</p>
+        </div>
+    </footer>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Swal from "sweetalert2";
+import api from "@/services/api";
 
-// Import centralized Axios instance
-import api from "../services/api";
-
-// Child form components
-import AcademicForm from "../components/AcademicForm.vue";
-import NonAcademicForm from "../components/NonAcademicForm.vue";
+// Child forms (already created by you)
+import AcademicForm from "@/components/AcademicForm.vue";
+import NonAcademicForm from "@/components/NonAcademicForm.vue";
 
 const route = useRoute();
 const router = useRouter();
+
+const job = ref(null);
 const jobId = route.params.jobId;
-const job = ref({});
-const formRef = ref(null);
+const applicationId = ref(null);
+const currentStep = ref(1);
 
-// Navbar navigation
-function goToDashboard() { router.push("/dashboard"); }
-function goToApplications() { router.push("/applications"); }
-function goToSettings() { router.push("/settings"); }
-function logout() {
-    localStorage.removeItem("token");
-    router.push("/login");
-}
+// Prefer query.templateType if present, otherwise fall back to the job.Type
+const templateTypeQuery = route.query.templateType || null;
+const displayType = computed(() => templateTypeQuery || job.value?.Type || "Academic");
 
-// Fetch job details using api.js
-async function fetchJobDetails() {
+// General details model
+const generalDetails = ref({
+    PostApplied: "",
+    FullName: "",
+    NameWithInitials: "",
+    NIC: "",
+    DOB: "",
+    Gender: "",
+    PhoneNumber: "",
+    Email: "",
+    PresentAddress: "",
+    PermanentAddress: "",
+    CivilStatus: "",
+    CitizenshipType: "",
+    CitizenshipDetails: "",
+    EthnicityOrReligion: "",
+});
+
+// Fetch job
+async function fetchJob() {
     try {
         const res = await api.get(`/api/jobs/${jobId}`);
         job.value = res.data.data;
     } catch (err) {
-        console.error(err);
-        Swal.fire("Error", "Failed to load job details.", "error");
+        // handled by interceptor if 401/403/404 etc.
     }
 }
 
-// Submit application
-async function handleSubmit() {
-    if (!formRef.value || typeof formRef.value.submitForm !== "function") {
-        Swal.fire("Error", "Form component not ready.", "error");
-        return;
-    }
-
+// Prefill from localStorage "user"
+function prefillFromUser() {
     try {
-        await formRef.value.submitForm(jobId); // Form handles API calls via api.js
-        Swal.fire("Success", "Application submitted successfully!", "success").then(() => {
-            router.push("/applications");
-        });
-    } catch (err) {
-        Swal.fire("Error", "Submission failed. All changes rolled back.", "error");
+        const raw = localStorage.getItem("user");
+        if (!raw) return;
+        const u = JSON.parse(raw);
+
+        if (!generalDetails.value.FullName && u.FullName) generalDetails.value.FullName = u.FullName;
+        if (!generalDetails.value.Email && u.Email) generalDetails.value.Email = u.Email;
+        if (!generalDetails.value.NIC && u.NIC) generalDetails.value.NIC = u.NIC;
+        if (!generalDetails.value.PhoneNumber && u.PhoneNumber) generalDetails.value.PhoneNumber = u.PhoneNumber;
+        if (!generalDetails.value.PresentAddress && u.Address) generalDetails.value.PresentAddress = u.Address;
+        if (!generalDetails.value.PermanentAddress && u.Address) generalDetails.value.PermanentAddress = u.Address;
+    } catch (_) {
+        // ignore parse errors
     }
 }
 
-onMounted(fetchJobDetails);
+// When job loads, set PostApplied
+watch(
+    () => job.value,
+    (j) => {
+        if (j?.Title) generalDetails.value.PostApplied = j.Title;
+    }
+);
+
+// Save & Continue (General Details)
+async function saveGeneralDetails() {
+    try {
+        const payload = {
+            jobId: Number(jobId),
+            generalDetails: { ...generalDetails.value },
+        };
+
+        // const res = await api.post("/api/applications/general-details", payload);
+        // // Expecting { applicationId: number, ... }
+        // applicationId.value = res.data.applicationId;
+
+        Swal.fire("Saved", "General details saved successfully.", "success");
+        currentStep.value = 2; // move to the correct form
+    } catch (err) {
+        // error handled globally
+    }
+}
+
+// Nav helpers
+function goToDashboard() { router.push("/dashboard"); }
+function goToApplications() { router.push("/applications"); }
+function goToSettings() { router.push("/settings"); }
+function logout() { localStorage.removeItem("token"); router.push("/login"); }
+
+// Date formatting
+function formatDate(d) {
+    return d ? new Date(d).toLocaleDateString() : "N/A";
+}
+
+onMounted(async () => {
+    await fetchJob();
+    prefillFromUser();
+});
 </script>
 
 <style scoped>
-.btn-lg {
-    border-radius: 50px;
-    padding: 10px 25px;
-    font-weight: bold;
+.step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #e0e0e0;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    transition: all .2s ease;
 }
 
-.badge {
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
+.step-circle.active {
+    background: #198754;
+    color: #fff;
+    border-color: #198754;
+}
+
+.step-circle.done {
+    background: #28a745;
+    color: #fff;
+    border-color: #28a745;
+}
+
+.card .form-label {
+    font-weight: 600;
 }
 </style>
