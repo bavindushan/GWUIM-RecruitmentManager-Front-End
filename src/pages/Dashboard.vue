@@ -238,7 +238,7 @@ function formatDate(dateString) {
 // Navigation
 function goToDashboard() { router.push("/dashboard"); }
 function goToApplications() { router.push("/applications"); }
-function goToSettings() { router.push("/settings"); }
+function goToSettings() { router.push("/applicant-settings"); }
 function goToJobDetails(jobId) { router.push(`/job/${jobId}`); }
 function goToLoginPage() { router.push("/login"); }
 
