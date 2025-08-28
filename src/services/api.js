@@ -38,9 +38,13 @@ api.interceptors.response.use(
                     break;
                 case 403:
                     Swal.fire("Forbidden", "You do not have permission.", "error");
+                    localStorage.removeItem("token");
+                    router.push("/login");
                     break;
                 case 404:
                     Swal.fire("Not Found", "Requested resource not found.", "error");
+                    localStorage.removeItem("token");
+                    router.push("/login");
                     break;
                 default:
                     Swal.fire(

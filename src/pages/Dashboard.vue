@@ -154,6 +154,7 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import api from "@/services/api"; // use the Axios instance
 
 const router = useRouter();
 const username = ref("User");
@@ -178,13 +179,13 @@ onMounted(() => {
 async function fetchJobs() {
     try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/jobs/", {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get("/api/jobs/");
         jobs.value = res.data.data.jobs || [];
     } catch (err) {
         console.error(err);
-        Swal.fire("Error", "Failed to load jobs.", "error");
+        // Swal.fire("Error", "Failed to load jobs.", "error");
+        // console.log("methana thama place eka");
+        // goToLoginPage();
     }
 }
 
@@ -192,15 +193,12 @@ async function fetchJobs() {
 async function fetchFilteredJobs(filters) {
     try {
         const queryParams = new URLSearchParams(filters).toString();
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`http://localhost:5000/api/jobs/filter?${queryParams}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get(`/api/jobs/filter?${queryParams}`);
         jobs.value = res.data.data.jobs || [];
         currentPage.value = 1; // reset pagination after filtering
     } catch (err) {
         console.error("Error fetching filtered jobs:", err);
-        Swal.fire("Error", "Failed to fetch filtered jobs.", "error");
+        // Swal.fire("Error", "Failed to fetch filtered jobs.", "error");
     }
 }
 
@@ -242,6 +240,7 @@ function goToDashboard() { router.push("/dashboard"); }
 function goToApplications() { router.push("/applications"); }
 function goToSettings() { router.push("/settings"); }
 function goToJobDetails(jobId) { router.push(`/job/${jobId}`); }
+function goToLoginPage() { router.push("/login"); }
 
 function logout() {
     Swal.fire({
