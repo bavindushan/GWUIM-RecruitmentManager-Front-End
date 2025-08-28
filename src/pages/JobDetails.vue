@@ -54,8 +54,8 @@
             <div class="mb-4"><strong>Description:</strong> {{ job.Description || "No description provided." }}</div>
 
             <div class="text-end">
-                <button class="btn btn-primary btn-lg shadow-lg" @click="applyForJob">
-                    Apply for Job
+                <button class="btn btn-primary btn-lg shadow-lg" @click="applyForJob" :disabled="alreadyApplied">
+                    {{ alreadyApplied ? "Already Applied" : "Apply for Job" }}
                 </button>
             </div>
         </div>
@@ -81,16 +81,26 @@ const job = ref(null);
 const jobId = route.params.jobId;
 let templateId = null;
 let templateType = null;
+const alreadyApplied = ref(false);
+const token = localStorage.getItem("token"); // token accessible globally
 
 async function fetchJobDetails() {
     try {
-        const token = localStorage.getItem("token");
+        // Fetch job details
         const res = await axios.get(`http://localhost:5000/api/jobs/${jobId}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         job.value = res.data.data;
         templateId = res.data.data.TemplateID;
         templateType = res.data.data.Type;
+
+        // Check if user has already applied
+        const checkRes = await axios.get(
+            `http://localhost:5000/api/applications/check-applied?jobId=${jobId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alreadyApplied.value = checkRes.data.applied; // true/false
+        // alreadyApplied.value = false;
     } catch (err) {
         console.error(err);
         Swal.fire("Error", "Failed to load job details.", "error");
@@ -98,6 +108,11 @@ async function fetchJobDetails() {
 }
 
 function applyForJob() {
+    if (alreadyApplied.value) {
+        Swal.fire("Info", "You have already applied for this job.", "info");
+        return; // stop navigation
+    }
+
     router.push({ path: `/apply/${jobId}`, query: { templateId, templateType } });
 }
 
@@ -119,7 +134,6 @@ onMounted(fetchJobDetails);
     background-color: #fff;
     border-radius: 10px;
     margin-top: 20px;
-    /* space below navbar */
     padding: 2.5rem 2rem;
     transition: all 0.3s ease;
 }
@@ -137,9 +151,15 @@ onMounted(fetchJobDetails);
     transition: all 0.3s ease;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:enabled {
     transform: translateY(-3px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Disabled button */
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
 }
 
 /* Badge */
