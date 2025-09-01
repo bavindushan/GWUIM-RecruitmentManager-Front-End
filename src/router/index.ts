@@ -9,6 +9,7 @@ import JobDetails from "../pages/JobDetails.vue";
 import ApplyJob from "../pages/ApplyJob.vue";
 import ApplicantSettings from "../pages/ApplicantSettings.vue";
 import AdminLogin from "../pages/AdminLogin.vue";
+import AdminDashboard from "../pages/AdminDashboard.vue";
 import Swal from "sweetalert2";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -19,6 +20,7 @@ const routes = [
     { path: "/admin/login", component: AdminLogin, meta: { guest: true } },
     { path: "/register", component: RegisterPage, meta: { guest: true } },
     { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true } },
+    { path: "/admin/dashboard", component: AdminDashboard, meta: { requiresAuth: true } },
     { path: "/applications", component: Applications, meta: { requiresAuth: true } },
     { path: "/job/:jobId", component: JobDetails, meta: { requiresAuth: true } }, // Job details page
     { path: "/apply/:jobId", component: ApplyJob, meta: { requiresAuth: true } },   // Apply for job page
