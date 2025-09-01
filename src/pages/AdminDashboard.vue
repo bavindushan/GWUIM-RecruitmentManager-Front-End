@@ -184,7 +184,7 @@ const logout = () => {
         if (result.isConfirmed) {
             localStorage.removeItem("adminToken");
             localStorage.removeItem("admin");
-            router.push("/admin-login");
+            router.push("/admin/login");
             Swal.fire("Logged Out!", "You have been logged out.", "success");
         }
     });
