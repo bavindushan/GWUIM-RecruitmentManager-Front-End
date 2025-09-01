@@ -16,16 +16,28 @@
             <!-- Links -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <!-- User Login -->
                     <li class="nav-item me-2">
                         <router-link class="nav-link btn-login" to="/login">
                             <i class="bi bi-box-arrow-in-right me-1"></i> Login
                         </router-link>
                     </li>
+
+                    <!-- User Register -->
                     <li class="nav-item">
                         <router-link class="nav-link btn-register" to="/register">
                             <i class="bi bi-person-plus-fill me-1"></i> Register
                         </router-link>
                     </li>
+
+                    <!-- Admin Button -->
+                    <li class="nav-item me-2">
+                        <router-link class="nav-link btn-admin" to="/admin/login">
+                            <i class="bi bi-shield-lock-fill me-1"></i> Admin
+                        </router-link>
+                    </li>
+                    
                 </ul>
             </div>
         </div>
@@ -38,5 +50,17 @@
 .navbar {
     background-color: #660B05;
     z-index: 1000;
+}
+
+/* Admin Button */
+.btn-admin {
+    color: #ffc107; /* gold color for admin */
+    font-weight: bold;
+}
+
+.btn-admin:hover {
+    color: #fff;
+    transform: translateY(-2px);
+    transition: all 0.3s ease-in-out;
 }
 </style>
