@@ -51,7 +51,7 @@
                             <label class="form-label">Registered Email</label>
                             <input v-model="email" type="email" class="form-control" placeholder="Enter your email" />
                             <div class="alert alert-success mt-2" role="alert">
-                                we will send OTP for your number related this Email you used to register
+                                We will send OTP to the number linked with this Email used to register.
                             </div>
                         </div>
                         <button class="btn btn-primary w-100" @click="sendOtp" :disabled="!email">
@@ -78,7 +78,12 @@
                         <div class="mb-3">
                             <label class="form-label">New Password</label>
                             <input v-model="newPassword" type="password" class="form-control"
-                                placeholder="Enter new password" />
+                                placeholder="Enter new password" @input="checkStrength" />
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div class="progress-bar" :class="strengthClass" role="progressbar"
+                                    :style="{ width: strengthPercent + '%' }"></div>
+                            </div>
+                            <small class="text-muted">Strength: {{ strengthLabel }}</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Confirm New Password</label>
@@ -86,7 +91,7 @@
                                 placeholder="Confirm new password" />
                         </div>
                         <button class="btn btn-success w-100" @click="changePassword"
-                            :disabled="!newPassword || !confirmPassword">
+                            :disabled="!newPassword || !confirmPassword || strengthLabel==='Weak'">
                             Change Password
                         </button>
                     </div>
@@ -95,6 +100,7 @@
             </div>
         </div>
     </div>
+
     <!-- Footer Section -->
     <footer class="footer bg-dark text-white py-4 mt-5">
         <div class="container text-center">
@@ -117,14 +123,18 @@ const confirmPassword = ref("");
 const otpSent = ref(false);
 const otpVerified = ref(false);
 const otpTimer = ref(60);
+
+const strengthPercent = ref(0);
+const strengthLabel = ref("Weak");
+const strengthClass = ref("bg-danger");
+
 let timerInterval = null;
 
 // Step 1: Send OTP
 const sendOtp = async () => {
-    if (!email.value) return;
-
     try {
-        await api.post("/api/users/send-otp", { email: email.value });
+        await api.post("/api/otp/generate-otp", { purpose: "password_reset" });
+
         otpSent.value = true;
         otpTimer.value = 60;
 
@@ -133,7 +143,11 @@ const sendOtp = async () => {
             else clearInterval(timerInterval);
         }, 1000);
 
-        Swal.fire("OTP Sent", "A verification code has been sent to your registered email.", "info");
+        Swal.fire(
+            "OTP Sent",
+            "A verification code has been sent to your registered phone number.",
+            "info"
+        );
     } catch (err) {
         Swal.fire("Error", err.response?.data?.message || "Failed to send OTP", "error");
     }
@@ -141,10 +155,14 @@ const sendOtp = async () => {
 
 // Step 2: Verify OTP
 const verifyOtp = async () => {
-    if (!otp.value) return;
+    if (!otp.value) return Swal.fire("Error", "Please enter the OTP", "warning");
 
     try {
-        await api.post("/api/users/verify-otp", { email: email.value, otp: otp.value });
+        await api.post("/api/otp/verify-otp", {
+            otpCode: otp.value,
+            purpose: "password_reset"
+        });
+
         otpVerified.value = true;
         clearInterval(timerInterval);
         Swal.fire("OTP Verified", "You can now set your new password.", "success");
@@ -155,17 +173,17 @@ const verifyOtp = async () => {
 
 // Step 3: Change Password
 const changePassword = async () => {
-    if (!newPassword.value || !confirmPassword.value) return;
+    if (!otpVerified.value) {
+        return Swal.fire("Error", "Please verify OTP first", "warning");
+    }
 
     if (newPassword.value !== confirmPassword.value) {
         return Swal.fire("Error", "Passwords do not match", "warning");
     }
 
     try {
-        await api.post("/api/users/change-password", {
-            email: email.value,
+        await api.post("/api/user/reset-password", {
             newPassword: newPassword.value,
-            otp: otp.value
         });
 
         Swal.fire("Success", "Password changed successfully!", "success").then(() => {
@@ -183,6 +201,32 @@ const resendOtp = async () => {
     otp.value = "";
     await sendOtp();
 };
+
+// Password Strength Checker
+const checkStrength = () => {
+    const pass = newPassword.value;
+    let score = 0;
+
+    if (pass.length >= 8) score += 25;
+    if (/[A-Z]/.test(pass)) score += 20;
+    if (/[a-z]/.test(pass)) score += 20;
+    if (/[0-9]/.test(pass)) score += 20;
+    if (/[^A-Za-z0-9]/.test(pass)) score += 15;
+
+    strengthPercent.value = score;
+
+    if (score < 40) {
+        strengthLabel.value = "Weak";
+        strengthClass.value = "bg-danger";
+    } else if (score < 70) {
+        strengthLabel.value = "Medium";
+        strengthClass.value = "bg-warning";
+    } else {
+        strengthLabel.value = "Strong";
+        strengthClass.value = "bg-success";
+    }
+};
+
 </script>
 
 <style scoped>
@@ -193,8 +237,8 @@ const resendOtp = async () => {
     border-radius: 15px;
 }
 
-.btn {
-    min-width: 120px;
+.progress {
+    height: 6px;
 }
 
 .text-muted {
