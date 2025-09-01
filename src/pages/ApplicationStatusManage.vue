@@ -106,8 +106,14 @@ export default {
                 return;
             }
             try {
-                await api.post(`/api/admin/change-application-status/${this.selectedApp.ApplicationID}`, {
+                await api.post(`/api/admin/change-application-status/${this.selectedApp.ApplicationID}`, { ///api/applications/change-application-status/1
                     status: this.newStatus,
+
+                    // {
+                    //   "status": "In_Reviewing",
+                    //   "Remarks": "Checked documents"
+                    // }
+                    
                 });
                 Swal.fire("Success", "Status updated successfully", "success");
                 this.selectedApp.Status = this.newStatus;
@@ -118,7 +124,7 @@ export default {
         },
         async downloadApplication() {
             try {
-                window.open(`/api/admin/download-application/${this.selectedApp.ApplicationID}`, "_blank");
+                window.open(`/api/applications-print/download/${this.selectedApp.ApplicationID}`, "_blank"); 
             } catch (err) {
                 Swal.fire("Error", "Failed to download application", "error");
             }
