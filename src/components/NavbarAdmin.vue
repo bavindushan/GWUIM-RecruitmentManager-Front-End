@@ -1,5 +1,5 @@
 <!-- Admin Navbar -->
-        <nav class="navbar navbar-expand-lg fixed-top" :style="{ backgroundColor: '#660B05' }">
+<nav class="navbar navbar-expand-lg fixed-top" :style="{ backgroundColor: '#660B05' }">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="#">
                     <img src="@/assets/logo_s.png" alt="Logo" height="40" class="me-3" />
@@ -26,3 +26,11 @@
                 </div>
             </div>
         </nav>
+<script setup>
+// Navigation functions
+const goToDashboard = () => router.push("/admin/dashboard");
+const goToPostJob = () => router.push("/admin/post-job");
+const goToApplicants = () => router.push("/admin/manage-applicants");
+const goToManageStatus = () => router.push("/admin/manage-status");
+const goToJobDetails = (id) => router.push(`/admin/job/${id}`);
+</script >

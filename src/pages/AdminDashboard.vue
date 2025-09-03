@@ -166,7 +166,7 @@ onMounted(() => {
 // Navigation functions
 const goToDashboard = () => router.push("/admin/dashboard");
 const goToPostJob = () => router.push("/admin/post-job");
-const goToApplicants = () => router.push("/admin/applicants");
+const goToApplicants = () => router.push("/admin/manage-applicants");
 const goToManageStatus = () => router.push("/admin/manage-status");
 const goToJobDetails = (id) => router.push(`/admin/job/${id}`);
 
