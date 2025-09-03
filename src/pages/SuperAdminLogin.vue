@@ -110,7 +110,7 @@ const handleLogin = async () => {
         });
 
         // Redirect to Super Admin Dashboard
-        router.push("/super-admin/dashboard");
+        router.push("/superadmin/dashboard");
     } catch (error) {
         Swal.fire({
             icon: "error",

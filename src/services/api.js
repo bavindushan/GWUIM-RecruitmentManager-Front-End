@@ -10,12 +10,15 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        // Check both tokens
+        // Check all three roles
         const userToken = localStorage.getItem("token");
         const adminToken = localStorage.getItem("adminToken");
+        const superAdminToken = localStorage.getItem("superAdminToken");
 
-        // Attach whichever is available
-        if (adminToken) {
+        // Attach whichever is available, priority: superAdmin > admin > user
+        if (superAdminToken) {
+            config.headers["Authorization"] = `Bearer ${superAdminToken}`;
+        } else if (adminToken) {
             config.headers["Authorization"] = `Bearer ${adminToken}`;
         } else if (userToken) {
             config.headers["Authorization"] = `Bearer ${userToken}`;
@@ -36,13 +39,16 @@ api.interceptors.response.use(
                     Swal.fire("Unauthorized", "Please login to continue.", "warning");
                     localStorage.removeItem("token");
                     localStorage.removeItem("adminToken");
-                    router.push("/login");
+                    localStorage.removeItem("superAdminToken");
+                    router.push("/");
                     break;
                 case 403:
                     Swal.fire("Forbidden", "You do not have permission.", "error");
+                    router.push("/");
                     break;
                 case 404:
                     Swal.fire("Not Found", "Requested resource not found.", "error");
+                    router.push("/");
                     break;
                 default:
                     Swal.fire(
