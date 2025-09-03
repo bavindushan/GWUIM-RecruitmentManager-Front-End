@@ -13,6 +13,7 @@ import AdminDashboard from "../pages/AdminDashboard.vue";
 import PostJob from "../pages/PostJob.vue";
 import ApplicationStatusManagement from "../pages/ApplicationStatusManage.vue";
 import ManageApplicants from "../pages/ManageApplicants.vue";
+import SuperAdminDashboard from "../pages/SuperAdminDashboard.vue";
 import Swal from "sweetalert2";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -30,6 +31,7 @@ const routes = [
     { path: "/admin/post-job", component: PostJob, meta: { requiresAuth: true, role: "admin" } },
     { path: "/admin/manage-status", component: ApplicationStatusManagement, meta: { requiresAuth: true, role: "admin" } },
     { path: "/admin/manage-applicants", component: ManageApplicants, meta: { requiresAuth: true, role: "admin" } },
+    { path: "/superadmin/dashboard", component: SuperAdminDashboard, meta: { requiresAuth: true, role: "superadmin" } },
 ];
 
 const router = createRouter({
