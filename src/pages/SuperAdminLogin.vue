@@ -7,7 +7,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-6">
                     <div class="card shadow-lg p-4 rounded-3">
-                        <h2 class="text-center mb-4" style="color: #660B05;">Admin Login</h2>
+                        <h2 class="text-center mb-4" style="color: #660B05;">Super Admin Login</h2>
 
                         <!-- Login Form -->
                         <form @submit.prevent="handleLogin">
@@ -15,7 +15,7 @@
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email Address</label>
                                 <input type="email" v-model="email" class="form-control" id="email"
-                                    placeholder="Enter admin email" required />
+                                    placeholder="Enter super admin email" required />
                             </div>
 
                             <!-- Password -->
@@ -36,10 +36,10 @@
                             Back to
                             <router-link to="/">Home</router-link>
                         </p>
-                        <!-- Link to Super Admin Login -->
+                        <!-- Link to Admin Login -->
                         <p class="mt-2 text-center">
                             Or login as
-                            <router-link to="/superadmin/login">Super Admin</router-link>
+                            <router-link to="/admin/login">Admin</router-link>
                         </p>
                     </div>
                 </div>
@@ -67,21 +67,19 @@ const handleLogin = async () => {
             inputValue: 1,
             inputPlaceholder: "I agree with the terms and conditions",
             confirmButtonText: "Continue",
-            inputValidator: (result) => {
-                return !result && "You need to agree with T&C";
-            },
+            inputValidator: (result) => !result && "You need to agree with T&C",
         });
 
         if (!accept) return;
 
-        // Send login request
-        const response = await api.post("/api/admin/sign-in", {
-            email: email.value,
-            password: password.value,
+        // Send login request to Super Admin API
+        const response = await api.post("/api/super-admin/sign-in", {
+            Email: email.value,
+            Password: password.value,
         });
 
         const tokenData = response.data.token;
-        const adminInfo = response.data.admin;
+        const superAdminInfo = response.data.superAdmin;
 
         if (!tokenData) {
             return Swal.fire({
@@ -91,8 +89,8 @@ const handleLogin = async () => {
             });
         }
 
-        localStorage.setItem("adminToken", tokenData);
-        localStorage.setItem("admin", JSON.stringify(adminInfo));
+        localStorage.setItem("superAdminToken", tokenData);
+        localStorage.setItem("superAdmin", JSON.stringify(superAdminInfo));
 
         // Success Toast
         const Toast = Swal.mixin({
@@ -108,11 +106,11 @@ const handleLogin = async () => {
         });
         Toast.fire({
             icon: "success",
-            title: "Admin signed in successfully",
+            title: "Super Admin signed in successfully",
         });
 
-        // Redirect to Admin Dashboard
-        router.push("/admin/dashboard");
+        // Redirect to Super Admin Dashboard
+        router.push("/super-admin/dashboard");
     } catch (error) {
         Swal.fire({
             icon: "error",
@@ -125,8 +123,6 @@ const handleLogin = async () => {
 // Handle navbar navigation events
 function handleNavigation(page) {
     if (page === "dashboard") router.push("/dashboard");
-    if (page === "applications") router.push("/applications");
-    if (page === "applicant-settings") router.push("/applicant-settings");
 }
 </script>
 
