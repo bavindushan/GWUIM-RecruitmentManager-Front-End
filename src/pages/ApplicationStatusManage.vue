@@ -1,5 +1,35 @@
 <template>
-    <div class="container mt-5">
+
+    <!-- Admin Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top" :style="{ backgroundColor: '#660B05' }">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="@/assets/logo_s.png" alt="Logo" height="40" class="me-3" />
+                <span class="text-white fw-bold">GWUIM Recruitment Admin</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="adminNavbar">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" @click="goToDashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" @click="goToPostJob">Post Job</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" @click="goToApplicants">Applicants</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold" @click="logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 pt-5">
         <h2 class="mb-4 text-center fw-bold">Manage Applications</h2>
 
         <!-- Applications Table -->
@@ -38,7 +68,7 @@
         <div class="modal fade" id="appModal" tabindex="-1" aria-labelledby="appModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
+                    <div class="modal-header text-white" :style="{ backgroundColor: '#660B05' }">
                         <h5 class="modal-title" id="appModalLabel">Application Details</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                             aria-label="Close"></button>
@@ -141,7 +171,7 @@
                         <button class="btn btn-info text-white" @click="downloadCV">
                             <i class="bi bi-file-earmark-arrow-down"></i> Download CV
                         </button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <button type="button" class="bi bi-x-square btn btn-danger" data-bs-dismiss="modal">
                             Close
                         </button>
                     </div>
@@ -149,6 +179,13 @@
             </div>
         </div>
     </div>
+
+    <!-- Footer Section -->
+    <footer class="footer bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">© 2025 GWUIM Recruitment System. All rights reserved.</p>
+        </div>
+    </footer>
 </template>
 
 <script>
@@ -214,10 +251,51 @@ export default {
             }
         },
         async downloadApplication() {
-            window.open(`http://localhost:5000/api/applications-print/download/${this.selectedApp.ApplicationID}`, "_blank");
+            try {
+                const token = localStorage.getItem("adminToken"); // Get admin token
+                const response = await api.get(`/api/applications-print/download/${this.selectedApp.ApplicationID}`, {
+                    responseType: "blob",
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Attach token like in Postman
+                    },
+                });
+
+                // Create a download link for the file
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", `application_${this.selectedApp.ApplicationID}.pdf`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                console.error("Download error:", err);
+                Swal.fire("Error", "Failed to download application", "error");
+            }
         },
         async downloadCV() {
-            window.open(`http://localhost:5000/api/applications/download-cv/${this.selectedApp.ApplicationID}`, "_blank");
+            try {
+                const token = localStorage.getItem("adminToken");
+                const response = await api.get(`/api/applications/download-cv/${this.selectedApp.ApplicationID}`, {
+                    responseType: "blob",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", `cv_${this.selectedApp.ApplicationID}.pdf`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                console.error("Download CV error:", err);
+                Swal.fire("Error", "Failed to download CV", "error");
+            }
         },
     },
     mounted() {
