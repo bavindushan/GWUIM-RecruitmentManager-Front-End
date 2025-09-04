@@ -1,6 +1,8 @@
 <template>
+    <!-- Navbar -->
+        <NavbarDashboard />
     <section class="register-section py-5">
-        <div class="container">
+        <div class="container mt-5 pt-5">
             <div class="row justify-content-center">
                 <div class="col-md-6">
                     <div class="card shadow-lg p-4 rounded-3">
@@ -10,14 +12,14 @@
                         <form @submit.prevent="handleLogin">
                             <!-- Email -->
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email Address</label>
+                                <label for="email" class="form-label bi bi-envelope-at"> Email Address</label>
                                 <input type="email" v-model="email" class="form-control" id="email"
                                     placeholder="Enter your email" required />
                             </div>
 
                             <!-- Password -->
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
+                                <label for="password" class="form-label bi bi-shield-lock"> Password</label>
                                 <input type="password" v-model="password" class="form-control" id="password"
                                     placeholder="Enter your password" required />
                             </div>
@@ -31,17 +33,27 @@
                             Don't have an account?
                             <router-link to="/register">Register here</router-link>
                         </p>
+
+                        <!-- Link to Home -->
+                        <p class="mt-3 text-center">
+                            Back to
+                            <router-link to="/">Home</router-link>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+    <!-- Footer -->
+    <FooterComponent />
 </template>
 
 <script setup>
 import { ref } from "vue";
 import Swal from "sweetalert2";
 import axios from "axios";
+import NavbarDashboard from "@/components/NavbarDashboard.vue";
+import FooterComponent from "@/components/FooterComponent.vue";
 
 const email = ref("");
 const password = ref("");

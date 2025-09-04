@@ -19,6 +19,13 @@
 
                     <!-- User Login -->
                     <li class="nav-item me-2">
+                        <router-link class="nav-link btn-login" to="/">
+                            <i class="bi bi-house me-1"></i> Home
+                        </router-link>
+                    </li>
+
+                    <!-- User Login -->
+                    <li class="nav-item me-2">
                         <router-link class="nav-link btn-login" to="/login">
                             <i class="bi bi-box-arrow-in-right me-1"></i> Login
                         </router-link>

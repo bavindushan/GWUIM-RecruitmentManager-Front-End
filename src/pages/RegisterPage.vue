@@ -1,5 +1,7 @@
 <template>
-    <section class="register-section py-5">
+    <!-- Navbar -->
+        <NavbarDashboard />
+    <section class="register-section py-5 mt-5">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-6">
@@ -10,49 +12,49 @@
                         <form @submit.prevent="handleRegister">
                             <!-- Full Name -->
                             <div class="mb-3">
-                                <label for="fullName" class="form-label">Full Name</label>
+                                <label for="fullName" class="form-label bi bi-pen"> Full Name</label>
                                 <input type="text" v-model="form.FullName" class="form-control" id="fullName"
                                     placeholder="Enter your full name" required />
                             </div>
 
                             <!-- Email -->
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email Address</label>
+                                <label for="email" class="form-label bi bi-envelope-at"> Email Address</label>
                                 <input type="email" v-model="form.Email" class="form-control" id="email"
                                     placeholder="Enter your email" required />
                             </div>
 
                             <!-- Password -->
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
+                                <label for="password" class="form-label bi bi-shield-lock"> Password</label>
                                 <input type="password" v-model="form.Password" class="form-control" id="password"
                                     placeholder="Enter your password" required />
                             </div>
 
                             <!-- Confirm Password -->
                             <div class="mb-3">
-                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <label for="confirm_password" class="form-label bi bi-shield-lock"> Confirm Password</label>
                                 <input type="password" v-model="form.ConfirmPassword" class="form-control" id="confirm_password"
                                     placeholder="Confirm your password" required />
                             </div>
 
                             <!-- NIC -->
                             <div class="mb-3">
-                                <label for="nic" class="form-label">NIC</label>
+                                <label for="nic" class="form-label bi bi-person-vcard-fill"> NIC</label>
                                 <input type="text" v-model="form.NIC" class="form-control" id="nic"
                                     placeholder="Enter your NIC" required />
                             </div>
 
                             <!-- Phone Number -->
                             <div class="mb-3">
-                                <label for="phone" class="form-label">Phone Number</label>
+                                <label for="phone" class="form-label bi bi-telephone-plus"> Phone Number</label>
                                 <input type="text" v-model="form.PhoneNumber" class="form-control" id="phone"
                                     placeholder="Enter your phone number" required />
                             </div>
 
                             <!-- Address -->
                             <div class="mb-3">
-                                <label for="address" class="form-label">Address</label>
+                                <label for="address" class="form-label bi bi-signpost"> Address</label>
                                 <input type="text" v-model="form.Address" class="form-control" id="address"
                                     placeholder="Enter your address" required />
                             </div>
@@ -71,11 +73,15 @@
             </div>
         </div>
     </section>
+    <!-- Footer -->
+    <FooterComponent />
 </template>
 
 <script>
 import axios from "axios";
 import Swal from "sweetalert2";
+import NavbarDashboard from "@/components/NavbarDashboard.vue";
+import FooterComponent from "@/components/FooterComponent.vue";
 
 export default {
     name: "RegisterPage",
@@ -169,6 +175,10 @@ export default {
                 });
             }
         },
+    },
+    components: {
+        FooterComponent,
+        NavbarDashboard,
     },
 };
 </script>

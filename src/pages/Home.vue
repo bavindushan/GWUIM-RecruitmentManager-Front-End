@@ -122,13 +122,10 @@
                 <div class="cta-content">
                     <h2 class="cta-title mb-4">Ready to Transform Your Career Journey?</h2>
                     <p class="cta-subtitle mb-5">Join thousands of professionals who trust GWUIM for their recruitment needs</p>
-                    <div class="cta-buttons" :style="{ backgroundColor: '#660B05' }">
-                        <router-link to="/register" class="btn btn-cta btn-lg me-3" >
+                    <div class="cta-buttons p-2" :style="{ backgroundColor: '#660B05' }">
+                        <router-link to="/register" class="btn btn-outline-light btn-lg" >
                             <i class="bi bi-rocket-takeoff me-2 "></i>Start Your Journey
                         </router-link>
-                        <button class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-play-circle me-2"></i>Watch Demo
-                        </button>
                     </div>
                 </div>
             </div>

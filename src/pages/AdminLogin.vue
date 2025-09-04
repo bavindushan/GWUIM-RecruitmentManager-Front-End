@@ -1,6 +1,6 @@
 <template>
     <!-- Navbar -->
-    <NavbarUser @navigate="handleNavigation" @logout="logout" />
+        <NavbarDashboard />
 
     <section class="admin-login-section py-5 mt-5">
         <div class="container">
@@ -13,14 +13,14 @@
                         <form @submit.prevent="handleLogin">
                             <!-- Email -->
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email Address</label>
+                                <label for="email" class="form-label bi bi-envelope-at"> Email Address</label>
                                 <input type="email" v-model="email" class="form-control" id="email"
                                     placeholder="Enter admin email" required />
                             </div>
 
                             <!-- Password -->
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
+                                <label for="password" class="form-label bi bi-shield-lock"> Password</label>
                                 <input type="password" v-model="password" class="form-control" id="password"
                                     placeholder="Enter password" required />
                             </div>
@@ -46,6 +46,8 @@
             </div>
         </div>
     </section>
+    <!-- Footer -->
+    <FooterComponent />
 </template>
 
 <script setup>
@@ -53,7 +55,9 @@ import { ref } from "vue";
 import Swal from "sweetalert2";
 import api from "@/services/api";
 import router from "@/router";
-import NavbarUser from "@/components/NavbarUser.vue";
+
+import NavbarDashboard from "@/components/NavbarDashboard.vue";
+import FooterComponent from "@/components/FooterComponent.vue";
 
 const email = ref("");
 const password = ref("");
