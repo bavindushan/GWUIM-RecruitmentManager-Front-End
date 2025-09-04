@@ -216,6 +216,8 @@
             </div>
         </div>
     </div>
+    <!-- Footer -->
+    <FooterComponent />
 </template>
 
 <script>
@@ -223,6 +225,7 @@ import api from "@/services/api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
 import router from "@/router"; // make sure router is imported
+import FooterComponent from "@/components/FooterComponent.vue";
 
 export default {
     data() {
@@ -306,6 +309,9 @@ export default {
         this.loadAuditLogs();
         this.loadAdmins();
         this.loadJobSeekers();
+    },
+    components: {
+        FooterComponent,
     },
 };
 </script>
