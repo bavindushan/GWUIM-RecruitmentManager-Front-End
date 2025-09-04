@@ -3,7 +3,7 @@
         <NavbarUser @navigate="handleNavigation" @logout="logout" />
 
     <!-- Page -->
-    <div class="container py-5 mt-5">
+    <div class="container py-5 mt-5 bg-gradient-light">
         <!-- Job header -->
         <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4" v-if="job">
             <div class="card-body p-4 p-md-5">
@@ -30,7 +30,7 @@
         </div>
 
         <!-- Stepper -->
-        <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="d-flex align-items-center gap-3 mb-3 bg-gradient-light">
             <div class="d-flex align-items-center">
                 <div class="step-circle" :class="{ active: currentStep === 1, done: currentStep > 1 }">1</div>
                 <div class="ms-2 fw-semibold" :class="{ 'text-muted': currentStep !== 1 }">General Details</div>
@@ -310,4 +310,6 @@ onMounted(async () => {
 .card .form-label {
     font-weight: 600;
 }
+
+
 </style>

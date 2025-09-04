@@ -3,7 +3,7 @@
         <NavbarUser @navigate="handleNavigation" @logout="logout" />
 
     <!-- Job Details Content -->
-    <div class="container py-5 mt-5">
+    <div class="container py-5 mt-5 ">
         <div class="card shadow-lg p-5 rounded-4 position-relative" v-if="job">
             <!-- Status Badge -->
             <span class="badge position-absolute top-0 end-0 m-3"
@@ -67,7 +67,7 @@ async function fetchJobDetails() {
             { headers: { Authorization: `Bearer ${token}` } }
         );
         alreadyApplied.value = checkRes.data.applied; // true/false
-        alreadyApplied.value = false;
+        alreadyApplied.value = false;    // for testing ----> Already Applied button disable
     } catch (err) {
         console.error(err);
         Swal.fire("Error", "Failed to load job details.", "error");
@@ -110,6 +110,7 @@ onMounted(fetchJobDetails);
     margin-top: 20px;
     padding: 2.5rem 2rem;
     transition: all 0.3s ease;
+    border-color: darkred;
 }
 
 .card:hover {

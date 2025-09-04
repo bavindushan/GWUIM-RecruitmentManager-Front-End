@@ -390,6 +390,7 @@ export default {
 
 <style scoped>
 .card {
+    border: 2px solid maroon; 
     transition: all 0.3s ease;
 }
 

@@ -858,6 +858,7 @@ export default {
 <style scoped>
 .card {
     transition: all 0.3s ease;
+    border: 2px solid maroon;
 }
 
 .card:hover {
