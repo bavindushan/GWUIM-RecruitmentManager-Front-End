@@ -42,7 +42,7 @@ const router = createRouter({
 });
 
 // Route Guard
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
     const token = localStorage.getItem("token");
     const adminToken = localStorage.getItem("adminToken");
     const superAdminToken = localStorage.getItem("superAdminToken");
