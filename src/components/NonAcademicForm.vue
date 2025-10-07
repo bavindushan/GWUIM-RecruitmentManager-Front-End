@@ -177,25 +177,44 @@
         <!-- 8. CV Upload -->
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-body p-4 p-md-5">
-                <h5 class="fw-bold mb-4"><i class="bi bi-file-earmark-arrow-up me-2"></i> CV Upload</h5>
+                <h5 class="fw-bold mb-4">
+                    <i class="bi bi-file-earmark-arrow-up me-2"></i> CV Upload
+                </h5>
 
                 <input type="file" @change="handleCVUpload" class="form-control mb-3" />
 
-                <div v-if="cvFilePath" class="mb-3">
-                    <p>Uploaded File: <a :href="cvFilePath" target="_blank">{{ cvFilePath }}</a></p>
+                <div v-if="cvFilePath || cvFile" class="mb-3">
+                    <div v-if="cvFilePath" class="d-flex align-items-center gap-2 mb-2">
+                        <label class="form-label mb-0">Uploaded CV:</label>
+                        <a :href="cvFilePath" target="_blank"
+                            class="btn btn-outline-primary btn-sm d-flex align-items-center">
+                            <i class="bi bi-file-earmark-text me-1"></i> View CV
+                        </a>
+                    </div>
+
                     <div class="d-flex gap-2">
-                        <button class="btn btn-success btn-sm" @click="submitCV"><i class="bi bi-upload me-1"></i>
-                            Submit CV</button>
-                        <button class="btn btn-danger btn-sm" @click="deleteCV"><i class="bi bi-trash me-1"></i> Delete
-                            CV</button>
+                        <button class="btn btn-success btn-sm" @click="submitCV" :disabled="!cvFile">
+                            <i class="bi bi-upload me-1"></i> Submit CV
+                        </button>
+
+                        <button class="btn btn-danger btn-sm" @click="deleteCV">
+                            <i class="bi bi-trash me-1"></i> Delete CV
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- delete all details-->
-        <div class="text-center mt-4">
+
+        <!-- Actions: Delete & Download -->
+        <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+            <!-- Delete All Details Button -->
             <button class="btn btn-danger btn-lg" @click="deleteAllApplicationData">
-                <i class="bi bi-x-circle me-2"></i> Remove All Details Submitted
+                <i class="bi bi-trash me-2"></i> Remove All Details Submitted
+            </button>
+
+            <!-- Download and Complete Submission Button -->
+            <button class="btn btn-success btn-lg" @click="DownloadandComplete">
+                <i class="bi bi-download me-2"></i> Download and Complete Submission
             </button>
         </div>
     </div>
@@ -204,6 +223,7 @@
 <script>
 import axios from 'axios';
 import Swal from "sweetalert2";
+import api from "@/services/api";
 
 export default {
     props: ['jobId', 'applicationId'],
@@ -224,19 +244,24 @@ export default {
         addOLRow() { this.olResults.push({ ExamYear: '', Subject: '', Grade: '' }); },
         removeOLRow(index) { this.olResults.splice(index, 1); },
         async saveOLResults() {
-            await axios.post('http://localhost:5000/api/applications/gce-ol-results', {
-                jobId: this.jobId,
-                olResults: this.olResults
-            });
-            Swal.fire('Saved!', 'O/L Results saved successfully.', 'success');
+            try {
+                await api.post('/api/applications/gce-ol-results', {
+                    jobId: parseInt(this.jobId),
+                    olResults: this.olResults
+                });
+                Swal.fire('Saved!', 'O/L Results saved successfully.', 'success');
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error!', 'Failed to save O/L Results.', 'error');
+            }
         },
 
         // A/L Results
         addALRow() { this.alResults.push({ ExamYear: '', Subject: '', Grade: '' }); },
         removeALRow(index) { this.alResults.splice(index, 1); },
         async saveALResults() {
-            await axios.post('http://localhost:5000/api/applications/gce-al-results', {
-                jobId: this.jobId,
+            await api.post('/api/applications/gce-al-results', {
+                jobId: parseInt(this.jobId),
                 alResults: this.alResults
             });
             Swal.fire('Saved!', 'A/L Results saved successfully.', 'success');
@@ -246,8 +271,8 @@ export default {
         addUniversityRow() { this.universityEducations.push({ DegreeOrDiploma: '', Institute: '', FromYear: '', ToYear: '', Class: '', YearObtained: '', IndexNumber: '' }); },
         removeUniversityRow(index) { this.universityEducations.splice(index, 1); },
         async saveUniversityEducation() {
-            await axios.post('http://localhost:5000/api/applications/university-educations', {
-                jobId: this.jobId,
+            await api.post('/api/applications/university-educations', {
+                jobId: parseInt(this.jobId),
                 universityEducations: this.universityEducations
             });
             Swal.fire('Saved!', 'University Education saved successfully.', 'success');
@@ -257,8 +282,8 @@ export default {
         addPQRow() { this.professionalQualifications.push({ Institution: '', QualificationName: '', FromYear: '', ToYear: '', ResultOrExamPassed: '' }); },
         removePQRow(index) { this.professionalQualifications.splice(index, 1); },
         async saveProfessionalQualifications() {
-            await axios.post('http://localhost:5000/api/applications/professional-qualifications', {
-                jobId: this.jobId,
+            await api.post('/api/applications/professional-qualifications', {
+                jobId: parseInt(this.jobId),
                 qualifications: this.professionalQualifications
             });
             Swal.fire('Saved!', 'Professional Qualifications saved successfully.', 'success');
@@ -268,8 +293,8 @@ export default {
         addExpRow() { this.experienceDetails.push({ Description: '' }); },
         removeExpRow(index) { this.experienceDetails.splice(index, 1); },
         async saveExperienceDetails() {
-            await axios.post('http://localhost:5000/api/applications/experience-details', {
-                jobId: this.jobId,
+            await api.post('/api/applications/experience-details', {
+                jobId: parseInt(this.jobId),
                 experienceDetails: this.experienceDetails
             });
             Swal.fire('Saved!', 'Experience Details saved successfully.', 'success');
@@ -279,13 +304,19 @@ export default {
         addSQRow() { this.specialQualifications.push({ Description: '' }); },
         removeSQRow(index) { this.specialQualifications.splice(index, 1); },
         async saveSpecialQualifications() {
-            await axios.post('http://localhost:5000/api/applications/special-qualifications', {
-                jobId: this.jobId,
+            await api.post('/api/applications/special-qualifications', {
+                jobId: parseInt(this.jobId),
                 specialQualifications: this.specialQualifications
             });
             Swal.fire('Saved!', 'Special Qualifications saved successfully.', 'success');
         },
-        // CV
+        handleCVUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.cvFile = file;
+            }
+        },
+
         async submitCV() {
             if (!this.cvFile) {
                 Swal.fire('Warning!', "Please select a file first!", 'warning');
@@ -296,28 +327,20 @@ export default {
             formData.append("file", this.cvFile);
 
             try {
-                // 1. Upload file to server
-                const uploadResponse = await fetch("http://localhost:5000/api/files/upload", {
-                    method: "POST",
-                    body: formData
-                });
-                const uploadData = await uploadResponse.json();
+                // Upload file to server
+                const uploadResponse = await api.post('/api/files/upload', formData);
+                const fileUrl = uploadResponse.data?.data?.fileUrl;
 
-                if (uploadData.filePath) {
-                    this.cvFilePath = uploadData.filePath;
+                if (fileUrl) {
+                    this.cvFilePath = fileUrl;
 
-                    // 2. Save file path to application
-                    const saveResponse = await fetch("http://localhost:5000/api/applications/attachments", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            applicationId: this.jobId, // or actual applicationId
-                            fileType: "resume/pdf",
-                            filePath: uploadData.filePath
-                        })
+                    // Save file path to application
+                    await api.post('/api/applications/attachments', {
+                        applicationId: parseInt(this.applicationId),
+                        fileType: "resume/pdf",
+                        filePath: this.cvFilePath
                     });
 
-                    const saveData = await saveResponse.json();
                     Swal.fire('Uploaded!', "CV uploaded successfully!", 'success');
                 }
 
@@ -333,9 +356,7 @@ export default {
             try {
                 // Extract filename from path
                 const filename = this.cvFilePath.split("/").pop();
-                await fetch(`http://localhost:5000/api/files/delete/${filename}`, {
-                    method: "DELETE"
-                });
+                await api.delete(`/api/files/delete/${filename}`);
 
                 // Clear local state
                 this.cvFile = null;
@@ -365,7 +386,7 @@ export default {
             }
 
             try {
-                await axios.delete(`http://localhost:5000/api/applications/delete-all-na/${this.applicationId}`);
+                await api.delete(`/api/applications/delete-all-na/${parseInt(this.applicationId)}`);
 
                 // Clear frontend state
                 this.olResults = [];
@@ -382,7 +403,44 @@ export default {
                 console.error(err);
                 Swal.fire('Error!', 'Failed to delete application details.', 'error');
             }
+        },
+        async DownloadandComplete() {
+            try {
+                const appId = parseInt(this.applicationId);
+                const url = `/api/applications-print/download/${appId}`;
+
+                // Call API using api.js instance
+                const response = await api.get(url, { responseType: 'blob' });
+
+                // Create a link to download the file
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = `Application_${appId}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                // Show success alert and wait before redirect
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Downloaded!',
+                    text: 'Your application has been downloaded successfully.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    didClose: () => {
+                        // Redirect only after alert closes
+                        this.$router.push({ name: 'dashboard' });
+                    }
+                });
+
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error!', 'Failed to download application.', 'error');
+            }
         }
+
     }
 };
 </script>
@@ -390,7 +448,7 @@ export default {
 
 <style scoped>
 .card {
-    border: 2px solid maroon; 
+    border: 2px solid maroon;
     transition: all 0.3s ease;
 }
 

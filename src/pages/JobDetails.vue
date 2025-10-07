@@ -1,6 +1,6 @@
 <template>
     <!-- Navbar -->
-        <NavbarUser @navigate="handleNavigation" @logout="logout" />
+    <NavbarUser @navigate="handleNavigation" @logout="logout" />
 
     <!-- Job Details Content -->
     <div class="container py-5 mt-5 ">
@@ -20,10 +20,11 @@
             <div class="mb-4"><strong>Description:</strong> {{ job.Description || "No description provided." }}</div>
 
             <div class="text-end">
-                <button class="btn btn-primary btn-lg shadow-lg" @click="applyForJob" :disabled="alreadyApplied">
-                    {{ alreadyApplied ? "Already Applied" : "Apply for Job" }}
+                <button class="btn btn-primary btn-lg shadow-lg" @click="applyForJob" :disabled="applyDisabled">
+                    {{ applyDisabled ? disabledReason : "Apply for Job" }}
                 </button>
             </div>
+
         </div>
     </div>
 
@@ -49,6 +50,8 @@ const jobId = route.params.jobId;
 let templateId = null;
 let templateType = null;
 const alreadyApplied = ref(false);
+const applyDisabled = ref(false);
+const disabledReason = ref("");
 const token = localStorage.getItem("token"); // token accessible globally
 
 async function fetchJobDetails() {
@@ -66,13 +69,31 @@ async function fetchJobDetails() {
             `http://localhost:5000/api/applications/check-applied?jobId=${jobId}`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
-        alreadyApplied.value = checkRes.data.applied; // true/false
-        // alreadyApplied.value = false;    // for testing ----> Already Applied button disable
+        alreadyApplied.value = checkRes.data.applied;
+
+        // Check if job is expired
+        const today = new Date();
+        const expiryDate = new Date(res.data.data.ExpiryDate);
+        const isExpired = today > expiryDate;
+
+        // Determine disabled state and reason
+        if (alreadyApplied.value) {
+            applyDisabled.value = true;
+            disabledReason.value = "Already Applied";
+        } else if (isExpired) {
+            applyDisabled.value = true;
+            disabledReason.value = "Expired";
+        } else {
+            applyDisabled.value = false;
+            disabledReason.value = "";
+        }
+
     } catch (err) {
         console.error(err);
         Swal.fire("Error", "Failed to load job details.", "error");
     }
 }
+
 
 function applyForJob() {
     if (alreadyApplied.value) {
