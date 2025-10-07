@@ -67,7 +67,7 @@ async function fetchJobDetails() {
             { headers: { Authorization: `Bearer ${token}` } }
         );
         alreadyApplied.value = checkRes.data.applied; // true/false
-        alreadyApplied.value = false;    // for testing ----> Already Applied button disable
+        // alreadyApplied.value = false;    // for testing ----> Already Applied button disable
     } catch (err) {
         console.error(err);
         Swal.fire("Error", "Failed to load job details.", "error");
