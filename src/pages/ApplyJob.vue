@@ -294,7 +294,6 @@ function formatDate(d) {
 
 onMounted(async () => {
     await fetchJob();
-    prefillFromUser();
 });
 </script>
 
