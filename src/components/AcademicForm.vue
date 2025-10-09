@@ -50,7 +50,8 @@
         <!-- 3. Higher Education / University -->
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-body p-4 p-md-5">
-                <h5 class="fw-bold mb-4"><i class="bi bi-mortarboard me-2"></i> Higher Education / University Education
+                <h5 class="fw-bold mb-4">
+                    <i class="bi bi-mortarboard me-2"></i> Higher Education / University Education
                 </h5>
 
                 <table class="table table-bordered table-striped mb-3">
@@ -66,6 +67,7 @@
                             <th class="text-center">Actions</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         <tr v-for="(edu, index) in universityEducations" :key="index">
                             <td><input v-model="edu.DegreeOrDiploma" class="form-control" /></td>
@@ -77,7 +79,7 @@
                             <td><input v-model="edu.IndexNumber" class="form-control" /></td>
                             <td class="text-center">
                                 <button class="btn btn-danger btn-sm" @click="removeUniversityRow(index)">
-                                    <i class="bi bi-trash"></i>
+                                    <i class="bi bi-trash me-1"></i>
                                 </button>
                             </td>
                         </tr>
@@ -89,14 +91,12 @@
 
                 <div class="d-flex justify-content-between">
                     <button class="btn btn-success btn-sm" @click="addUniversityRow">
-                        <i class="bi bi-plus-circle me-1"></i> Add University Degree
+                        <i class="bi bi-plus-circle me-1"></i> Add University
                     </button>
 
-                    <div>
-                        <button class="btn btn-primary" @click="saveUniversityEducation">
-                            <i class="bi bi-save me-2"></i> Save Higher Education
-                        </button>
-                    </div>
+                    <button class="btn btn-primary btn-sm" @click="saveUniversityEducation">
+                        <i class="bi bi-save me-1"></i> Save All
+                    </button>
                 </div>
             </div>
         </div>
@@ -104,34 +104,31 @@
         <!-- 4. First Degree Subjects -->
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-body p-4 p-md-5">
-                <h5 class="fw-bold mb-4"><i class="bi bi-journal-text me-2"></i> First Degree Main Subjects</h5>
+                <h5 class="fw-bold mb-4">
+                    <i class="bi bi-book me-2"></i> First Degree Subjects
+                </h5>
 
-                <div v-if="firstDegreeSubjects.length === 0" class="text-muted mb-3">
-                    No university degrees mapped. Click <b>Refresh Subjects Groups</b> after saving university degrees.
+                <label class="form-label">Select University:</label>
+                <select v-model="selectedUniversityId" class="form-select mb-3">
+                    <option disabled value="">-- Select University --</option>
+                    <option v-for="uni in universityEducations" :key="uni.UE_ID" :value="uni.UE_ID">
+                        {{ uni.DegreeOrDiploma }} ({{ uni.Institute }})
+                    </option>
+                </select>
+
+                <div v-for="(subject, index) in subjects" :key="index" class="input-group mb-2">
+                    <input v-model="subjects[index]" class="form-control" placeholder="Subject" />
+                    <button class="btn btn-outline-danger" @click="removeSubject(index)" type="button">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </div>
 
-                <div v-for="(group, index) in firstDegreeSubjects" :key="index" class="mb-3">
-                    <label class="form-label">University: <strong>{{ group.universityDegree || '—' }}</strong></label>
-
-                    <div v-for="(subj, sIndex) in group.subjects" :key="sIndex" class="input-group mb-2">
-                        <input v-model="group.subjects[sIndex]" class="form-control" placeholder="Subject" />
-                        <button class="btn btn-outline-danger" @click="removeSubject(index, sIndex)" type="button">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-
-                    <div class="d-flex gap-2 mb-3">
-                        <button class="btn btn-success btn-sm" @click="addSubject(index)">
-                            <i class="bi bi-plus-circle me-1"></i> Add Subject
-                        </button>
-                        <small class="text-muted align-self-center ms-2">Save first-degree subjects for each university
-                            separately.</small>
-                    </div>
-                </div>
-
-                <div class="text-end">
-                    <button class="btn btn-primary" @click="saveFirstDegreeSubjects">
-                        <i class="bi bi-save me-2"></i> Save First Degree Subjects
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success btn-sm" @click="addSubject">
+                        <i class="bi bi-plus-circle me-1"></i> Add Subject
+                    </button>
+                    <button class="btn btn-primary btn-sm" @click="saveFirstDegreeSubjects">
+                        <i class="bi bi-save me-1"></i> Save Subjects
                     </button>
                 </div>
             </div>
@@ -210,18 +207,55 @@
                 <h5 class="fw-bold mb-4"><i class="bi bi-translate me-2"></i> Languages Proficiency</h5>
 
                 <div v-for="(lang, index) in languagesProficiency" :key="index" class="row g-2 mb-2">
-                    <div class="col-md-2"><input v-model="lang.Language" class="form-control" placeholder="Language" />
+                    <div class="col-md-2">
+                        <input v-model="lang.Language" class="form-control" placeholder="Language" />
                     </div>
-                    <div class="col-md-2"><input v-model="lang.CanSpeak" class="form-control" placeholder="Speak" />
+
+                    <!-- Dropdowns for enum fields -->
+                    <div class="col-md-2">
+                        <select v-model="lang.CanSpeak" class="form-control">
+                            <option disabled value="">Speak</option>
+                            <option>Very_Good</option>
+                            <option>Good</option>
+                            <option>Fair</option>
+                            <option>None</option>
+                        </select>
                     </div>
-                    <div class="col-md-2"><input v-model="lang.CanRead" class="form-control" placeholder="Read" /></div>
-                    <div class="col-md-2"><input v-model="lang.CanWrite" class="form-control" placeholder="Write" />
+
+                    <div class="col-md-2">
+                        <select v-model="lang.CanRead" class="form-control">
+                            <option disabled value="">Read</option>
+                            <option>Very_Good</option>
+                            <option>Good</option>
+                            <option>Fair</option>
+                            <option>None</option>
+                        </select>
                     </div>
-                    <div class="col-md-2"><input v-model="lang.CanTeach" class="form-control" placeholder="Teach" />
+
+                    <div class="col-md-2">
+                        <select v-model="lang.CanWrite" class="form-control">
+                            <option disabled value="">Write</option>
+                            <option>Very_Good</option>
+                            <option>Good</option>
+                            <option>Fair</option>
+                            <option>None</option>
+                        </select>
                     </div>
+
+                    <div class="col-md-2">
+                        <select v-model="lang.CanTeach" class="form-control">
+                            <option disabled value="">Teach</option>
+                            <option>Very_Good</option>
+                            <option>Good</option>
+                            <option>Fair</option>
+                            <option>None</option>
+                        </select>
+                    </div>
+
                     <div class="col-md-2 d-flex justify-content-center">
-                        <button class="btn btn-danger btn-sm" @click="removeLangRow(index)"><i
-                                class="bi bi-trash"></i></button>
+                        <button class="btn btn-danger btn-sm" @click="removeLangRow(index)">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -373,10 +407,16 @@
             </div>
         </div>
 
-        <!-- delete all details-->
-        <div class="text-center mt-4">
+        <!-- Actions: Delete & Download -->
+        <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+            <!-- Delete All Details Button -->
             <button class="btn btn-danger btn-lg" @click="deleteAllApplicationData">
-                <i class="bi bi-x-circle me-2"></i> Remove All Details Submitted
+                <i class="bi bi-trash me-2"></i> Remove All Details Submitted
+            </button>
+
+            <!-- Download and Complete Submission Button -->
+            <button class="btn btn-success btn-lg" @click="DownloadandComplete">
+                <i class="bi bi-download me-2"></i> Download and Complete Submission
             </button>
         </div>
     </div>
@@ -409,68 +449,21 @@ export default {
             cvFile: null,
             cvFilePath: "",
             loading: false,
+
+            newUniversity: {
+                DegreeOrDiploma: "",
+                Institute: "",
+                FromYear: null,
+                ToYear: null,
+                Class: "",
+                YearObtained: null,
+                IndexNumber: "",
+            },
+            subjects: [],
+            selectedUniversityId: "",
         };
     },
-    mounted() {
-        // try to fetch existing data if applicationId is available
-        if (this.applicationId) {
-            this.prefillAll();
-        }
-    },
     methods: {
-        /********** Prefill existing data (best-effort) **********/
-        async prefillAll() {
-            try {
-                // Note: backend endpoints for GET are assumptions; if they differ, adjust endpoints.
-                const id = this.applicationId;
-                const calls = [
-                    api.get(`/api/applications/${id}/secondary-educations`).catch(() => null),
-                    api.get(`/api/applications/${id}/university-educations`).catch(() => null),
-                    api.get(`/api/applications/${id}/first-degree-subjects`).catch(() => null),
-                    api.get(`/api/applications/${id}/professional-qualifications`).catch(() => null),
-                    api.get(`/api/applications/${id}/special-qualifications`).catch(() => null),
-                    api.get(`/api/applications/${id}/language-proficiencies`).catch(() => null),
-                    api.get(`/api/applications/${id}/employment-histories`).catch(() => null),
-                    api.get(`/api/applications/${id}/experience-details`).catch(() => null),
-                    api.get(`/api/applications/${id}/research-and-publications`).catch(() => null),
-                    api.get(`/api/applications/${id}/references`).catch(() => null),
-                    api.get(`/api/applications/${id}/attachments`).catch(() => null),
-                    api.get(`/api/applications/${id}/additional-info`).catch(() => null),
-                ];
-
-                const results = await Promise.all(calls);
-
-                // Guarded assignments (each response shape may vary; check what's returned)
-                if (results[0] && results[0].data) this.secondaryEducations = results[0].data.secondaryEducations || results[0].data || [];
-                if (results[1] && results[1].data) {
-                    // backend might return array under data or data.universityEducations
-                    this.universityEducations = results[1].data.universityEducations || results[1].data || [];
-                }
-                if (results[2] && results[2].data) {
-                    this.firstDegreeSubjects = results[2].data.subjectsGroups || results[2].data || [];
-                } else {
-                    // map university entries to subject groups if not provided by API
-                    this.mapFirstDegreeGroups();
-                }
-                if (results[3] && results[3].data) this.professionalQualifications = results[3].data.qualifications || results[3].data || [];
-                if (results[4] && results[4].data) this.specialQualifications = results[4].data.specialQualifications || results[4].data || [];
-                if (results[5] && results[5].data) this.languagesProficiency = results[5].data.languageProficiencies || results[5].data || [];
-                if (results[6] && results[6].data) this.employmentRecords = results[6].data.employmentHistories || results[6].data || [];
-                if (results[7] && results[7].data) this.experienceDescription = results[7].data.experienceDetails || results[7].data || [];
-                if (results[8] && results[8].data) this.researchPublications = results[8].data.publications || results[8].data || [];
-                if (results[9] && results[9].data) this.references = results[9].data.references || results[9].data || [];
-                if (results[10] && results[10].data) {
-                    // attachments response shape may vary
-                    this.cvFilePath = results[10].data.filePath || (results[10].data.length ? results[10].data[0]?.filePath : "") || "";
-                }
-                if (results[11] && results[11].data) {
-                    this.additionalInfo.content = results[11].data.content || results[11].data || "";
-                }
-            } catch (err) {
-                // Ignore prefill errors — app will still work
-                console.warn("prefill failed", err);
-            }
-        },
 
         /********** Secondary Education **********/
         addSecondaryRow() {
@@ -505,90 +498,86 @@ export default {
                 Class: "",
                 YearObtained: null,
                 IndexNumber: "",
-                // optional: local id placeholder until backend returns real id
-                _localTempId: Date.now() + Math.random(),
             });
-            // Update first-degree groups mapping
-            this.mapFirstDegreeGroups();
         },
+
         removeUniversityRow(index) {
             this.universityEducations.splice(index, 1);
-            this.mapFirstDegreeGroups();
         },
-        mapFirstDegreeGroups() {
-            // create or refresh groups for first-degree subjects based on current universityEducations
-            this.firstDegreeSubjects = this.universityEducations.map((u) => ({
-                universityEducationId: u.Id || u.id || u.UniversityEducationId || null,
-                universityDegree: u.DegreeOrDiploma || "",
-                subjects: u.subjects ? [...u.subjects] : [],
-            }));
-        },
+
         async saveUniversityEducation() {
             try {
-                // payload uses jobId per your specification for universityEducations
+                if (!this.universityEducations.length) {
+                    return Swal.fire("No Data", "Please add at least one university education.", "warning");
+                }
+
+                // Validate each row
+                for (const edu of this.universityEducations) {
+                    if (!edu.DegreeOrDiploma || !edu.Institute || !edu.FromYear || !edu.ToYear) {
+                        return Swal.fire("Incomplete", "Please fill in all required fields for all university education rows.", "warning");
+                    }
+                }
+
+                // Send all university education data at once
                 await api.post("/api/applications/university-educations", {
                     jobId: Number(this.jobId),
                     universityEducations: this.universityEducations,
                 });
 
-                Swal.fire("Saved", "University education saved successfully.", "success");
+                Swal.fire("Saved", "All university education saved successfully.", "success");
 
-                // After saving, try to fetch the saved university-education list to get IDs (best-effort)
-                if (this.applicationId) {
-                    const res = await api.get(`/api/applications/${this.applicationId}/university-educations`).catch(() => null);
-                    if (res && res.data) {
-                        // Normalize returned list
-                        this.universityEducations = res.data.universityEducations || res.data || this.universityEducations;
-                        this.mapFirstDegreeGroups();
-                    }
-                } else {
-                    // if we didn't fetch new IDs, just refresh mapping
-                    this.mapFirstDegreeGroups();
-                }
+                // Refresh data from DB (ensures consistency)
+                await this.fetchUniversityEducations();
+
             } catch (err) {
                 console.error(err);
                 Swal.fire("Error", "Failed to save university education.", "error");
             }
+        }
+        ,
+        /********** First Degree Subjects **********/
+
+        addSubject() {
+            this.subjects.push("");
         },
 
-        /********** First Degree Subjects **********/
-        addSubject(groupIndex) {
-            if (!this.firstDegreeSubjects[groupIndex]) return;
-            this.firstDegreeSubjects[groupIndex].subjects.push("");
+        removeSubject(index) {
+            this.subjects.splice(index, 1);
         },
-        removeSubject(groupIndex, subjectIndex) {
-            this.firstDegreeSubjects[groupIndex].subjects.splice(subjectIndex, 1);
-        },
+
         async saveFirstDegreeSubjects() {
             try {
-                // backend expects: { universityEducationId: X, subjects: [...] }
-                // We'll save each group separately (if group has universityEducationId).
-                const promises = [];
-                const groupsMissingId = [];
-                for (const g of this.firstDegreeSubjects) {
-                    if (!g.universityEducationId) {
-                        groupsMissingId.push(g.universityDegree || "(unsaved degree)");
-                        continue;
-                    }
-                    promises.push(api.post("/api/applications/first-degree-subjects", {
-                        universityEducationId: Number(g.universityEducationId),
-                        subjects: g.subjects,
-                    }));
+                if (!this.selectedUniversityId) {
+                    return Swal.fire("Select University", "Please select a university first.", "warning");
                 }
 
-                if (groupsMissingId.length) {
-                    return Swal.fire(
-                        "Save University First",
-                        `Please save your university education entries first (missing IDs for: ${groupsMissingId.join(", ")}).`,
-                        "warning"
-                    );
+                if (!this.subjects.length) {
+                    return Swal.fire("Add Subjects", "Please add at least one subject.", "warning");
                 }
 
-                await Promise.all(promises);
-                Swal.fire("Saved", "First degree subjects saved successfully.", "success");
+                await api.post("/api/applications/first-degree-subjects", {
+                    universityEducationId: Number(this.selectedUniversityId),
+                    subjects: this.subjects,
+                });
+
+                Swal.fire("Saved", "Subjects saved successfully.", "success");
+
+                // Clear after save
+                this.subjects = [];
+                this.selectedUniversityId = "";
             } catch (err) {
                 console.error(err);
                 Swal.fire("Error", "Failed to save first degree subjects.", "error");
+            }
+        },
+
+        async fetchUniversityEducations() {
+            try {
+                const response = await api.get(`/api/applications/university-educations/${this.jobId}`);
+                this.universityEducations = response.data?.data || [];
+            } catch (err) {
+                console.error(err);
+                Swal.fire("Error", "Failed to fetch university educations.", "error");
             }
         },
 
@@ -749,55 +738,63 @@ export default {
 
         /********** CV Upload / Delete **********/
         handleCVUpload(e) {
-            this.cvFile = e.target.files[0] || null;
-            if (this.cvFile) {
-                // optional: show preview path until user submits
-                this.cvFilePath = URL.createObjectURL(this.cvFile);
+            const file = e.target.files[0] || null;
+            if (file) {
+                this.cvFile = file;
+                // optional: show preview until submit
+                this.cvFilePath = URL.createObjectURL(file);
             }
         },
+
         async submitCV() {
-            if (!this.cvFile) return Swal.fire("Warning", "Please select a file first.", "warning");
+            if (!this.cvFile) {
+                return Swal.fire("Warning", "Please select a file first.", "warning");
+            }
+
+            if (!this.applicationId) {
+                return Swal.fire("Warning", "Application ID missing — CV will not be attached.", "warning");
+            }
 
             try {
                 const formData = new FormData();
                 formData.append("file", this.cvFile);
 
+                // Upload file to backend
                 const res = await api.post("/api/files/upload", formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
 
-                // backend may return filePath in res.data.filePath or res.data.data.filePath etc.
-                const filePath = res?.data?.filePath || res?.data?.data?.filePath || (res?.data && typeof res.data === "string" ? res.data : null);
-                if (!filePath) {
-                    return Swal.fire("Error", "Upload failed: server did not return filePath.", "error");
+                // Get actual file URL from backend response
+                const fileUrl = res?.data?.data?.fileUrl || null;
+                if (!fileUrl) {
+                    return Swal.fire("Error", "Upload failed: server did not return file URL.", "error");
                 }
 
-                this.cvFilePath = filePath;
+                this.cvFilePath = fileUrl;
 
-                // Save attachment entry against application
-                if (!this.applicationId) {
-                    Swal.fire("Warning", "Application ID missing — CV will not be attached to an application.", "warning");
-                    return;
-                }
-
+                // Save attachment entry to application
                 await api.post("/api/applications/attachments", {
                     applicationId: Number(this.applicationId),
                     fileType: "resume/pdf",
-                    filePath: filePath,
+                    filePath: fileUrl,
                 });
 
                 Swal.fire("Uploaded", "CV uploaded and attached successfully.", "success");
+
             } catch (err) {
                 console.error(err);
                 Swal.fire("Error", "Error uploading CV.", "error");
             }
         },
+
         async deleteCV() {
             if (!this.cvFilePath) return;
+
             try {
                 const filename = this.cvFilePath.split("/").pop();
                 await api.delete(`/api/files/delete/${filename}`);
-                // optional: also remove attachment record if backend has such endpoint
+
+                // Clear frontend state
                 this.cvFile = null;
                 this.cvFilePath = "";
                 Swal.fire("Deleted", "CV deleted successfully.", "success");
@@ -827,7 +824,6 @@ export default {
             if (!result.isConfirmed) return;
 
             try {
-                // endpoint in your spec: /api/applications/delete-all-ac/{applicationId}
                 await api.delete(`/api/applications/delete-all-ac/${this.applicationId}`);
 
                 // reset client state
@@ -851,6 +847,42 @@ export default {
                 Swal.fire("Error", "Failed to delete application details.", "error");
             }
         },
+        async DownloadandComplete() {
+            try {
+                const appId = parseInt(this.applicationId);
+                const url = `/api/applications-print/download/${appId}`;
+
+                // Call API using api.js instance
+                const response = await api.get(url, { responseType: 'blob' });
+
+                // Create a link to download the file
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = `Application_${appId}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                // Show success alert and wait before redirect
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Downloaded!',
+                    text: 'Your application has been downloaded successfully.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    didClose: () => {
+                        // Redirect only after alert closes
+                        this.$router.push({ name: 'dashboard' });
+                    }
+                });
+
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error!', 'Failed to download application.', 'error');
+            }
+        }
     },
 };
 </script>

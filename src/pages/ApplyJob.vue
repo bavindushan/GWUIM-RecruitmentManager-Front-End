@@ -1,6 +1,6 @@
 <template>
     <!-- Navbar -->
-        <NavbarUser @navigate="handleNavigation" @logout="logout" />
+    <NavbarUser @navigate="handleNavigation" @logout="logout" />
 
     <!-- Page -->
     <div class="container py-5 mt-5 bg-gradient-light">
@@ -56,41 +56,42 @@
                     <!-- Post Applied (Read-only) -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-briefcase me-1"></i> Post Applied</label>
-                        <input type="text" class="form-control form-control-lg" :value="job?.Title" readonly />
+                        <input type="text" class="form-control form-control-lg" v-model="generalDetails.PostApplied"
+                            readonly />
                     </div>
 
                     <!-- Full Name -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-card-text me-1"></i> Full Name</label>
-                        <input type="text" class="form-control form-control-lg"
-                            placeholder="Full Name" />
+                        <input type="text" class="form-control form-control-lg" placeholder="Full Name"
+                            v-model="generalDetails.FullName" required />
                     </div>
 
                     <!-- Name with Initials -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-person-lines-fill me-1"></i> Name with
                             Initials</label>
-                        <input type="text"
-                            class="form-control form-control-lg" placeholder="Name with Initials" />
+                        <input type="text" class="form-control form-control-lg" placeholder="Name with Initials"
+                            v-model="generalDetails.NameWithInitials" required />
                     </div>
 
                     <!-- NIC -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-passport me-1"></i> NIC</label>
-                        <input type="text" class="form-control form-control-lg"
-                            placeholder="NIC Number" />
+                        <input type="text" class="form-control form-control-lg" placeholder="NIC Number"
+                            v-model="generalDetails.NIC" required />
                     </div>
 
                     <!-- DOB -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-cake2 me-1"></i> Date of Birth</label>
-                        <input type="date" class="form-control form-control-lg" />
+                        <input type="date" class="form-control form-control-lg" v-model="generalDetails.DOB" required />
                     </div>
 
                     <!-- Gender -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-gender-ambiguous me-1"></i> Gender</label>
-                        <select class="form-select form-select-lg">
+                        <select class="form-select form-select-lg" v-model="generalDetails.Gender" required>
                             <option value="" disabled>Select gender</option>
                             <option>Male</option>
                             <option>Female</option>
@@ -101,35 +102,35 @@
                     <!-- Phone -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-telephone me-1"></i> Phone Number</label>
-                        <input type="tel" class="form-control form-control-lg"
-                            placeholder="07XXXXXXXX" />
+                        <input type="tel" class="form-control form-control-lg" placeholder="07XXXXXXXX"
+                            v-model="generalDetails.PhoneNumber" required />
                     </div>
 
                     <!-- Email -->
                     <div class="col-md-6">
                         <label class="form-label"><i class="bi bi-envelope me-1"></i> Email</label>
-                        <input type="email" class="form-control form-control-lg"
-                            placeholder="name@example.com" />
+                        <input type="email" class="form-control form-control-lg" placeholder="name@example.com"
+                            v-model="generalDetails.Email" required />
                     </div>
 
                     <!-- Present Address -->
                     <div class="col-12">
                         <label class="form-label"><i class="bi bi-geo-alt me-1"></i> Present Address</label>
-                        <input type="text" class="form-control form-control-lg"
-                            placeholder="Present Address" />
+                        <input type="text" class="form-control form-control-lg" placeholder="Present Address"
+                            v-model="generalDetails.PresentAddress" required />
                     </div>
 
                     <!-- Permanent Address -->
                     <div class="col-12">
                         <label class="form-label"><i class="bi bi-pin-map me-1"></i> Permanent Address</label>
-                        <input type="text"
-                            class="form-control form-control-lg" placeholder="Permanent Address" />
+                        <input type="text" class="form-control form-control-lg" placeholder="Permanent Address"
+                            v-model="generalDetails.PermanentAddress" required />
                     </div>
 
                     <!-- Civil Status / Citizenship -->
                     <div class="col-md-4">
                         <label class="form-label"><i class="bi bi-people me-1"></i> Civil Status</label>
-                        <select class="form-select form-select-lg">
+                        <select class="form-select form-select-lg" v-model="generalDetails.CivilStatus" required>
                             <option value="" disabled>Select</option>
                             <option>Single</option>
                             <option>Married</option>
@@ -139,21 +140,24 @@
 
                     <div class="col-md-4">
                         <label class="form-label"><i class="bi bi-flag me-1"></i> Citizenship Type</label>
-                        <input type="text" class="form-control form-control-lg"
-                            placeholder="e.g., Descent" />
+                        <select class="form-select form-select-lg" v-model="generalDetails.CitizenshipType" required>
+                            <option value="" disabled>Select</option>
+                            <option>Descent</option>
+                            <option>Registration</option>
+                        </select>
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label"><i class="bi bi-card-list me-1"></i> Citizenship Details</label>
-                        <input type="text"
-                            class="form-control form-control-lg" placeholder="Details" />
+                        <input type="text" class="form-control form-control-lg" placeholder="Details"
+                            v-model="generalDetails.CitizenshipDetails" required />
                     </div>
 
                     <!-- Ethnicity/Religion -->
                     <div class="col-12">
                         <label class="form-label"><i class="bi bi-moon-stars me-1"></i> Ethnicity/Religion</label>
-                        <input type="text"
-                            class="form-control form-control-lg" placeholder="Ethnicity / Religion" />
+                        <input type="text" class="form-control form-control-lg" placeholder="Ethnicity / Religion"
+                            v-model="generalDetails.EthnicityOrReligion" required />
                     </div>
 
                     <!-- Action -->
@@ -165,6 +169,7 @@
                 </form>
             </div>
         </div>
+
 
         <!-- Step 2: Render the correct template form (Academic / Non-Academic) -->
         <div v-else-if="currentStep === 2">
@@ -245,19 +250,29 @@ async function saveGeneralDetails() {
     try {
         const payload = {
             jobId: Number(jobId),
-            generalDetails: { ...generalDetails.value },
+            generalDetails: { ...generalDetails.value }
         };
 
-        // const res = await api.post("/api/applications/general-details", payload);
-        // // Expecting { applicationId: number, ... }
-        // applicationId.value = res.data.applicationId;
+        // Call backend to create application + save general details
+        const res = await api.post("/api/applications/general-details", payload);
+
+        // Get ApplicationID from saved details
+        applicationId.value = res.data.data.ApplicationID;
 
         Swal.fire("Saved", "General details saved successfully.", "success");
-        currentStep.value = 2; // move to the correct form
+
+        // Move to step 2 only if applicationId exists
+        if (applicationId.value) {
+            currentStep.value = 2;
+        } else {
+            Swal.fire("Error", "Could not retrieve application ID.", "error");
+        }
     } catch (err) {
-        // error handled globally
+        console.error("Error saving general details:", err);
+        Swal.fire("Error", "Failed to save general details.", "error");
     }
 }
+
 
 // Nav helpers
 function goToDashboard() { router.push("/dashboard"); }
@@ -279,7 +294,6 @@ function formatDate(d) {
 
 onMounted(async () => {
     await fetchJob();
-    prefillFromUser();
 });
 </script>
 
@@ -310,6 +324,4 @@ onMounted(async () => {
 .card .form-label {
     font-weight: 600;
 }
-
-
 </style>

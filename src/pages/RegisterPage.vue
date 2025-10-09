@@ -153,8 +153,13 @@ export default {
                     });
                     Toast.fire({
                         icon: "success",
-                        title: "Signed in successfully",
+                        title: "Registered successfully! Redirecting to login...",
                     });
+
+                    // Wait a bit before redirecting
+                    setTimeout(() => {
+                        this.$router.push("/login");
+                    }, 2500);
 
                     // Reset Form
                     this.form = {
