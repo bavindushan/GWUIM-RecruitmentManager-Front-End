@@ -143,14 +143,16 @@ const deleteApplication = async (app) => {
 
     if (result.isConfirmed) {
         try {
-            if (app.Type === "Non-Academic") {
-                await api.delete(`/api/applications/delete-all-na/${app.ApplicationID}`);
-            } else {
-                await api.delete(`/api/applications/delete-all-ac/${app.ApplicationID}`);
-            }
+            // Call the new delete API
+            await api.delete(`/api/applications/${app.ApplicationID}`);
+
+            // Remove the deleted application from the frontend list
             applications.value = applications.value.filter(a => a.ApplicationID !== app.ApplicationID);
+
             Swal.fire("Deleted!", "Application has been deleted.", "success");
         } catch (err) {
+            console.error(err); // optional: log error for debugging
+            console.log(err.response?.data?.message);
             Swal.fire("Error", "Failed to delete application", "error");
         }
     }
