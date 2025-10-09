@@ -208,9 +208,9 @@
         <!-- Actions: Delete & Download -->
         <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
             <!-- Delete All Details Button -->
-            <button class="btn btn-danger btn-lg" @click="deleteAllApplicationData">
+            <!-- <button class="btn btn-danger btn-lg" @click="deleteAllApplicationData">
                 <i class="bi bi-trash me-2"></i> Remove All Details Submitted
-            </button>
+            </button> -->
 
             <!-- Download and Complete Submission Button -->
             <button class="btn btn-success btn-lg" @click="DownloadandComplete">
@@ -431,7 +431,7 @@ export default {
                     showConfirmButton: false,
                     didClose: () => {
                         // Redirect only after alert closes
-                        this.$router.push({ name: 'dashboard' });
+                        this.$router.push({ name: '/dashboard' });
                     }
                 });
 

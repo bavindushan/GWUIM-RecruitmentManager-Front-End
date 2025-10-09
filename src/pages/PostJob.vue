@@ -50,7 +50,7 @@
                     <select class="form-select" v-model.number="job.templateID">
                         <option value="">-- Select Template --</option>
                         <option value="2">Academic</option>
-                        <option value="4">Non-Academic</option>
+                        <option value="1">Non-Academic</option>
                     </select>
                 </div>
 
