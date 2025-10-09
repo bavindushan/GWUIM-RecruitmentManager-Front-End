@@ -431,7 +431,7 @@ export default {
                     showConfirmButton: false,
                     didClose: () => {
                         // Redirect only after alert closes
-                        this.$router.push({ name: 'dashboard' });
+                        this.$router.push({ name: '/dashboard' });
                     }
                 });
 
