@@ -28,6 +28,58 @@
             <div class="col-md-2 d-flex align-items-end">
                 <button class="btn btn-primary w-100" @click="applyFilters">Apply Filters</button>
             </div>
+            <div class="text-end mb-3">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#interviewSheetModal">
+                    <i class="bi bi-clipboard2-data"></i> Generate Interview Sheet
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Interview Sheet Modal -->
+        <div class="modal fade" id="interviewSheetModal" tabindex="-1" aria-labelledby="interviewSheetModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content shadow">
+                    <div class="modal-header text-white" :style="{ backgroundColor: '#660B05' }">
+                        <h5 class="modal-title fw-bold" id="interviewSheetModalLabel">
+                            Generate Interview Sheet
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Interview Date</label>
+                                <input type="date" class="form-control" v-model="interview.date">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Venue</label>
+                                <input type="text" class="form-control" v-model="interview.venue"
+                                    placeholder="Enter venue">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Time</label>
+                                <input type="time" class="form-control" v-model="interview.time">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-success" @click="exportToExcel">
+                            <i class="bi bi-file-earmark-excel"></i> Export Excel
+                        </button>
+                        <button class="btn btn-danger" @click="generateInterviewPDF">
+                            <i class="bi bi-file-earmark-pdf"></i> Print PDF
+                        </button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Applications Table -->
@@ -215,6 +267,10 @@ import api from "@/services/api";
 import AdminNavbar from "@/components/NavbarAdmin.vue";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap"; //  Import Bootstrap Modal
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 
 export default {
@@ -234,7 +290,13 @@ export default {
                 fromDate: "",
                 toDate: "",
             },
+            interview: {
+                date: "",
+                venue: "",
+                time: "",
+            },
         };
+
     },
     methods: {
         async loadJobs() {
@@ -370,6 +432,218 @@ export default {
                 Swal.fire("Error", "Failed to download CV", "error");
             }
         },
+        exportToExcel() {
+            if (!this.filteredApplications.length) {
+                Swal.fire("Info", "No applications to export", "info");
+                return;
+            }
+
+            const data = this.filteredApplications.map(app => ({
+                "Application No": app.ApplicationID,
+                "Full Name": app.FullName,
+                "Email": app.Email,
+                "Post Applied": app.PostApplied,
+                "Department": app.Department,
+                "Status": app.Status,
+                "Interview Date": this.interview.date,
+                "Venue": this.interview.venue,
+                "Time": this.interview.time,
+                "Date of Birth": app.applicationgeneraldetails?.DOB ? new Date(app.applicationgeneraldetails.DOB).toLocaleDateString() : "N/A",
+                "Phone": app.applicationgeneraldetails?.PhoneNumber || "N/A",
+                "Address": app.applicationgeneraldetails?.PresentAddress || "N/A",
+                "Education Qualifications": app.universityeducations.map(edu => `${edu.DegreeOrDiploma} (${edu.Institute})`).join("; "),
+                "Professional Qualifications": app.professionalqualifications.map(pq => `${pq.QualificationName} (${pq.Institution})`).join("; "),
+                "Research & Publications": app.researchandpublications.map(rp => rp.Description).join("; "),
+                "References": app.applicationreferences.map(ref => `${ref.Name} - ${ref.Designation}`).join("; "),
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Interview List");
+
+            const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+            const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+            saveAs(blob, `Interview_Sheet_${new Date().toISOString().split("T")[0]}.xlsx`);
+
+            // Close modal
+            const modalEl = document.getElementById('interviewSheetModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+        },
+        generateInterviewPDF() {
+            if (!this.filteredApplications.length) {
+                Swal.fire("Info", "No applications to print", "info");
+                return;
+            }
+
+            if (!this.interview.date || !this.interview.venue || !this.interview.time) {
+                Swal.fire("Warning", "Please fill Interview Date, Venue and Time", "warning");
+                return;
+            }
+
+            // Landscape A4
+            const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+
+            this.filteredApplications.forEach((app, index) => {
+                if (index > 0) doc.addPage();
+
+                const post = app.PostApplied || "N/A";
+                const department = app.Department || "Department Not Specified";
+                const subject = app.Description || "N/A";
+
+                // === HEADER ===
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(14);
+                doc.text(
+                    "GAMPAHA WICKRAMARACHCHI UNIVERSITY OF INDIGENOUS MEDICINE, SRI LANKA",
+                    10, 15
+                );
+
+                doc.setFontSize(11);
+                doc.text(`RECRUITMENT FOR THE POSTS OF ${post}`, 10, 23);
+                doc.text(`DEPARTMENT: ${department}`, 10, 30);
+                doc.text(`SUBJECT: ${subject}`, 10, 37);
+
+                doc.setFontSize(10);
+                doc.text(`Date: ${this.interview.date}`, 10, 44);
+                doc.text(`Interview No: ${app.ApplicationID}`, 80, 44);
+                doc.text(`Venue: ${this.interview.venue}`, 150, 44);
+                doc.text(`Time: ${this.interview.time}`, 250, 44);
+
+                // === TABLE DATA ===
+                const dob = app.applicationgeneraldetails?.DOB
+                    ? new Date(app.applicationgeneraldetails.DOB).toLocaleDateString()
+                    : "N/A";
+                const age = this.calculateAge(app.applicationgeneraldetails?.DOB) || "-";
+
+                // ✅ Get only current employment (ToDate == null)
+                const currentEmployment = app.employmenthistories?.find(emp => !emp.ToDate);
+                let presentPostInfo = "N/A";
+                if (currentEmployment) {
+                    const fromDate = currentEmployment.FromDate
+                        ? new Date(currentEmployment.FromDate).toLocaleDateString()
+                        : "N/A";
+                    const salary = currentEmployment.LastSalary
+                        ? `Rs. ${currentEmployment.LastSalary}`
+                        : "N/A";
+
+                    presentPostInfo = `${currentEmployment.PostHeld} at ${currentEmployment.Institution} (${fromDate}-Present) - ${salary}`;
+                }
+
+                // ✅ Helper function to format multiline data with comma + blank line
+                const formatList = (list, mapper) =>
+                    list?.length
+                        ? list.map(mapper).map(item => `${item},\n`).join("\n")
+                        : "N/A";
+
+                // === Formatted Data Fields ===
+                const fullNameAndAddress = `${app.FullName},\n\n${app.applicationgeneraldetails?.PresentAddress || ""},\n\n${app.Email},\n\n${app.applicationgeneraldetails?.PhoneNumber || ""}`;
+
+                const dobAndAge = `${dob},\n\n (${age} yrs)`;
+
+                const education = formatList(app.universityeducations, edu =>
+                    `${edu.DegreeOrDiploma} (${edu.Institute})`
+                );
+
+                const professionalQuals = formatList(app.professionalqualifications, pq =>
+                    `${pq.QualificationName} (${pq.Institution})`
+                );
+
+                const research = formatList(app.researchandpublications, rp =>
+                    rp.Description
+                );
+
+                const experience = formatList(app.experiencedetails, exp =>
+                    exp.Description
+                );
+
+                const extraCurricular = formatList(app.specialqualifications, sq =>
+                    sq.Description
+                );
+
+                // === BODY ROW ===
+                const body = [[
+                    app.ApplicationID,
+                    fullNameAndAddress,
+                    dobAndAge,
+                    education,
+                    professionalQuals,
+                    research,
+                    presentPostInfo,
+                    "Academic Distinctions N/A",
+                    experience,
+                    extraCurricular
+                ]];
+
+                // === AUTO TABLE ===
+                autoTable(doc, {
+                    head: [[
+                        "App No.",
+                        "FULL NAME & ADDRESS",
+                        "DATE OF BIRTH & AGE",
+                        "EDUCATION QUALIFICATIONS",
+                        "PROFESSIONAL QUALIFICATIONS RELATED TO THE POST APPLIED",
+                        "RESEARCH & PUBLICATIONS",
+                        "PRESENT POST & SALARY",
+                        "ACADEMIC DISTINCTION AT UNIVERSITY LEVEL",
+                        "PROFESSIONAL EXPERIENCE",
+                        "EXTRA-CURRICULAR ACTIVITIES"
+                    ]],
+                    body,
+                    startY: 50,
+                    margin: { left: 8, right: 8 },
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 1.5,
+                        overflow: "linebreak",
+                        valign: "top",
+                        halign: "left",
+                        minCellHeight: 6,
+                        lineColor: [180, 180, 180],
+                        lineWidth: 0.1
+                    },
+                    headStyles: {
+                        fillColor: [230, 230, 230],
+                        textColor: [0, 0, 0],
+                        fontStyle: "bold",
+                        halign: "center",
+                        valign: "middle",
+                        lineWidth: 0.1
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 10 },  // App No
+                        1: { cellWidth: 45 },  // Full Name & Address
+                        2: { cellWidth: 20 },  // DOB & Age
+                        3: { cellWidth: 35 },  // Education
+                        4: { cellWidth: 35 },  // Professional Quals
+                        5: { cellWidth: 35 },  // Research
+                        6: { cellWidth: 25 },  // Present Post
+                        7: { cellWidth: 25 },  // Academic Distinctions
+                        8: { cellWidth: 35 },  // Experience
+                        9: { cellWidth: 25 }   // Extra-Curricular
+                    },
+                    tableWidth: "wrap",
+                    didDrawPage: function (data) {
+                        const pageCount = doc.internal.getNumberOfPages();
+                        doc.setFontSize(8);
+                        doc.text(`Page ${index + 1} of ${pageCount}`, 270, 200, { align: "right" });
+                    }
+                });
+            });
+
+            doc.save(`Interview_Sheets_${new Date().toISOString().split("T")[0]}.pdf`);
+
+            // Close modal
+            const modalEl = document.getElementById("interviewSheetModal");
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+        },
+        calculateAge(dob) {
+            if (!dob) return "-";
+            const diff = Date.now() - new Date(dob).getTime();
+            return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+        },
+
     },
     mounted() {
         this.loadJobs();
