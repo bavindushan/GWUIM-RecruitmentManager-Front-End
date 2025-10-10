@@ -438,38 +438,187 @@ export default {
                 return;
             }
 
-            const data = this.filteredApplications.map(app => ({
-                "Application No": app.ApplicationID,
-                "Full Name": app.FullName,
-                "Email": app.Email,
-                "Post Applied": app.PostApplied,
-                "Department": app.Department,
-                "Status": app.Status,
-                "Interview Date": this.interview.date,
-                "Venue": this.interview.venue,
-                "Time": this.interview.time,
-                "Date of Birth": app.applicationgeneraldetails?.DOB ? new Date(app.applicationgeneraldetails.DOB).toLocaleDateString() : "N/A",
-                "Phone": app.applicationgeneraldetails?.PhoneNumber || "N/A",
-                "Address": app.applicationgeneraldetails?.PresentAddress || "N/A",
-                "Education Qualifications": app.universityeducations.map(edu => `${edu.DegreeOrDiploma} (${edu.Institute})`).join("; "),
-                "Professional Qualifications": app.professionalqualifications.map(pq => `${pq.QualificationName} (${pq.Institution})`).join("; "),
-                "Research & Publications": app.researchandpublications.map(rp => rp.Description).join("; "),
-                "References": app.applicationreferences.map(ref => `${ref.Name} - ${ref.Designation}`).join("; "),
-            }));
+            if (!this.interview.date || !this.interview.venue || !this.interview.time) {
+                Swal.fire("Warning", "Please fill Interview Date, Venue and Time", "warning");
+                return;
+            }
 
-            const worksheet = XLSX.utils.json_to_sheet(data);
+            const formatList = (list, mapper) =>
+                list?.length ? list.map(mapper).join("\n") : "N/A";
+
+            // Create workbook
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Interview List");
 
-            const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-            const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-            saveAs(blob, `Interview_Sheet_${new Date().toISOString().split("T")[0]}.xlsx`);
+            this.filteredApplications.forEach((app, index) => {
+                const post = app.PostApplied || "N/A";
+                const department = app.Department || "Department Not Specified";
+                const subject = app.Description || "N/A";
+
+                // === DOB and Age ===
+                const dob = app.applicationgeneraldetails?.DOB
+                    ? new Date(app.applicationgeneraldetails.DOB).toLocaleDateString()
+                    : "N/A";
+                const age = this.calculateAge(app.applicationgeneraldetails?.DOB) || "-";
+
+                // === FULL NAME & ADDRESS ===
+                const fullNameAndAddress = `${app.FullName || "N/A"}\n\n${app.applicationgeneraldetails?.PresentAddress || "N/A"}\n\n${app.Email || "N/A"}\n\n${app.applicationgeneraldetails?.PhoneNumber || "N/A"}`;
+
+                // === DOB & AGE formatted ===
+                const dobAndAge = `${dob}\n\n(${age} yrs)`;
+
+                // === EDUCATIONAL QUALIFICATIONS ===
+                const education = formatList(app.universityeducations, edu =>
+                    `${edu.DegreeOrDiploma || ""} (${edu.Institute || "N/A"})`
+                );
+
+                // === PROFESSIONAL QUALIFICATIONS ===
+                const professionalQuals = formatList(app.professionalqualifications, pq =>
+                    `${pq.QualificationName || ""} (${pq.Institution || "N/A"})`
+                );
+
+                // === RESEARCH & PUBLICATIONS ===
+                const research = formatList(app.researchandpublications, rp =>
+                    rp.Description
+                );
+
+                // === PRESENT POST & SALARY ===
+                const currentEmployment = app.employmenthistories?.find(emp => !emp.ToDate);
+                let presentPostInfo = "N/A";
+                if (currentEmployment) {
+                    const fromDate = currentEmployment.FromDate
+                        ? new Date(currentEmployment.FromDate).toLocaleDateString()
+                        : "N/A";
+                    const salary = currentEmployment.LastSalary
+                        ? `Rs. ${currentEmployment.LastSalary}`
+                        : "N/A";
+                    presentPostInfo = `${currentEmployment.PostHeld || "N/A"} at ${currentEmployment.Institution || "N/A"} (${fromDate} - Present) - ${salary}`;
+                }
+
+                // === PROFESSIONAL EXPERIENCE ===
+                const experience = formatList(app.experiencedetails, exp =>
+                    exp.Description
+                );
+
+                // === EXTRA-CURRICULAR ===
+                const extraCurricular = formatList(app.specialqualifications, sq =>
+                    sq.Description
+                );
+
+                // === ACADEMIC DISTINCTIONS (Placeholder) ===
+                const academicDistinctions = "Academic Distinctions N/A";
+
+                // === Create Worksheet Data ===
+                const worksheetData = [
+                    ["GAMPAHA WICKRAMARACHCHI UNIVERSITY OF INDIGENOUS MEDICINE, SRI LANKA"],
+                    [`RECRUITMENT FOR THE POSTS OF ${post}`],
+                    [`DEPARTMENT: ${department}`],
+                    [`SUBJECT: ${subject}`],
+                    [""],
+                    [`Date - ${this.interview.date}`, "", `Interview No. ${app.ApplicationID}`, `Venue – ${this.interview.venue}`, `Time – ${this.interview.time}`],
+                    [""],
+                    [
+                        "App No.",
+                        "FULL NAME & ADDRESS",
+                        "DATE OF BIRTH & AGE",
+                        "EDUCATIONAL QUALIFICATIONS",
+                        "PROFESSIONAL QUALIFICATIONS RELATED TO THE POST APPLIED",
+                        "RESEARCH & PUBLICATIONS",
+                        "PRESENT POST & SALARY",
+                        "ACADEMIC DISTINCTION AT UNIVERSITY LEVEL",
+                        "PROFESSIONAL EXPERIENCE",
+                        "EXTRA-CURRICULAR ACTIVITIES"
+                    ],
+                    [
+                        app.ApplicationID,
+                        fullNameAndAddress,
+                        dobAndAge,
+                        education,
+                        professionalQuals,
+                        research,
+                        presentPostInfo,
+                        academicDistinctions,
+                        experience,
+                        extraCurricular
+                    ]
+                ];
+
+                const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+                // === Merge header cells ===
+                worksheet['!merges'] = [
+                    { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
+                    { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
+                    { s: { r: 2, c: 0 }, e: { r: 2, c: 9 } },
+                    { s: { r: 3, c: 0 }, e: { r: 3, c: 9 } }
+                ];
+
+                // === Set Column Widths ===
+                worksheet['!cols'] = [
+                    { wch: 10 },
+                    { wch: 35 },
+                    { wch: 18 },
+                    { wch: 30 },
+                    { wch: 30 },
+                    { wch: 25 },
+                    { wch: 30 },
+                    { wch: 25 },
+                    { wch: 30 },
+                    { wch: 25 }
+                ];
+
+                // === Styling ===
+                const range = XLSX.utils.decode_range(worksheet['!ref']);
+                for (let R = range.s.r; R <= range.e.r; ++R) {
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                        if (!worksheet[cellAddress]) continue;
+
+                        worksheet[cellAddress].s = {
+                            alignment: { wrapText: true, vertical: "top", horizontal: "left" },
+                            border: {
+                                top: { style: "thin" },
+                                left: { style: "thin" },
+                                bottom: { style: "thin" },
+                                right: { style: "thin" }
+                            }
+                        };
+
+                        if (R <= 3) {
+                            worksheet[cellAddress].s.font = { bold: true, sz: 14 };
+                            worksheet[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
+                        } else if (R === 5) {
+                            worksheet[cellAddress].s.font = { bold: true, sz: 10 };
+                        } else if (R === 7) {
+                            worksheet[cellAddress].s.font = { bold: true, sz: 9 };
+                            worksheet[cellAddress].s.fill = { fgColor: { rgb: "D9D9D9" } };
+                            worksheet[cellAddress].s.alignment = { wrapText: true, vertical: "center", horizontal: "center" };
+                        } else if (R === 8) {
+                            worksheet[cellAddress].s.font = { sz: 8 };
+                        }
+                    }
+                }
+
+                const sheetName = `App_${app.ApplicationID}`.substring(0, 31);
+                XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+            });
+
+            // === Download File ===
+            const excelBuffer = XLSX.write(workbook, {
+                bookType: "xlsx",
+                type: "array",
+                cellStyles: true
+            });
+            const blob = new Blob([excelBuffer], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            });
+            saveAs(blob, `Interview_Sheets_${new Date().toISOString().split("T")[0]}.xlsx`);
 
             // Close modal
-            const modalEl = document.getElementById('interviewSheetModal');
+            const modalEl = document.getElementById("interviewSheetModal");
             const modal = bootstrap.Modal.getInstance(modalEl);
-            modal.hide();
-        },
+            if (modal) modal.hide();
+        }
+        ,
         generateInterviewPDF() {
             if (!this.filteredApplications.length) {
                 Swal.fire("Info", "No applications to print", "info");
