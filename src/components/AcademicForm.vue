@@ -360,7 +360,7 @@
                     <div class="col-md-4"><input v-model="ref.Name" class="form-control" placeholder="Name" /></div>
                     <div class="col-md-4"><input v-model="ref.Designation" class="form-control"
                             placeholder="Designation" /></div>
-                    <div class="col-md-3"><input v-model="ref.Address" class="form-control" placeholder="Address" />
+                    <div class="col-md-3"><input v-model="ref.Address" class="form-control" placeholder="TelNo." />
                     </div>
                     <div class="col-md-1 d-flex justify-content-center">
                         <button class="btn btn-danger btn-sm" @click="removeRefRow(index)"><i
@@ -416,7 +416,7 @@
 
             <!-- Download and Complete Submission Button -->
             <button class="btn btn-success btn-lg" @click="DownloadandComplete">
-                <i class="bi bi-download me-2"></i> Download and Complete Submission
+                <i class="bi bi-download me-2"></i> Download Application and Complete Submission
             </button>
         </div>
     </div>

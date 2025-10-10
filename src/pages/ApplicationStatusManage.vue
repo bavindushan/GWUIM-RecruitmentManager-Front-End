@@ -6,6 +6,30 @@
     <div class="container mt-5 pt-5">
         <h2 class="mb-4 text-center fw-bold">Manage Applications</h2>
 
+        <!-- Filters -->
+        <div class="row mb-4 g-3">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Job Name</label>
+                <select class="form-select" v-model="filters.jobName">
+                    <option value="">-- Select Job --</option>
+                    <option v-for="job in jobs" :key="job.JobID" :value="job.Title">
+                        {{ job.Title }}
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">From Date</label>
+                <input type="date" class="form-control" v-model="filters.fromDate">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">To Date</label>
+                <input type="date" class="form-control" v-model="filters.toDate">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-primary w-100" @click="applyFilters">Apply Filters</button>
+            </div>
+        </div>
+
         <!-- Applications Table -->
         <div class="table-responsive shadow rounded">
             <table class="table table-hover table-bordered align-middle text-center">
@@ -14,15 +38,17 @@
                         <th>ID</th>
                         <th>Full Name</th>
                         <th>Email</th>
+                        <th>Post Applied</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="app in applications" :key="app.ApplicationID">
+                    <tr v-for="app in filteredApplications" :key="app.ApplicationID">
                         <td>{{ app.ApplicationID }}</td>
                         <td>{{ app.FullName }}</td>
                         <td>{{ app.Email }}</td>
+                        <td>{{ app.PostApplied }}</td>
                         <td>
                             <span :class="statusBadge(app.Status)">
                                 {{ app.Status }}
@@ -33,6 +59,9 @@
                                 <i class="bi bi-eye"></i> View
                             </button>
                         </td>
+                    </tr>
+                    <tr v-if="filteredApplications.length === 0">
+                        <td colspan="6">No applications found.</td>
                     </tr>
                 </tbody>
             </table>
@@ -80,8 +109,12 @@
                         <div class="tab-content">
                             <!-- General Info -->
                             <div class="tab-pane fade show active" id="general" role="tabpanel">
-                                <p><strong>Full Name:</strong> {{ selectedApp.FullName }}</p>
-                                <p><strong>Email:</strong> {{ selectedApp.Email }}</p>
+                                <p><strong>Full Name:</strong> {{ selectedApp.applicationgeneraldetails?.FullName }}</p>
+                                <p><strong>Email:</strong> {{ selectedApp.applicationgeneraldetails?.Email }}</p>
+                                <p><strong>NIC:</strong> {{ selectedApp.applicationgeneraldetails?.NIC }}</p>
+                                <p><strong>Phone:</strong> {{ selectedApp.applicationgeneraldetails?.PhoneNumber }}</p>
+                                <p><strong>Post Applied:</strong> {{
+                                    selectedApp.applicationgeneraldetails?.PostApplied }}</p>
                                 <p>
                                     <strong>Status:</strong>
                                     <span :class="statusBadge(selectedApp.Status)">
@@ -104,32 +137,47 @@
 
                             <!-- Education Tab -->
                             <div class="tab-pane fade" id="education" role="tabpanel">
-                                <p v-if="!selectedApp.Education">No education details available.</p>
-                                <ul v-else>
-                                    <li v-for="edu in selectedApp.Education" :key="edu.id">
-                                        {{ edu.Qualification }} - {{ edu.Institution }}
-                                    </li>
-                                </ul>
+                                <div v-if="selectedApp.universityeducations?.length">
+                                    <div v-for="edu in selectedApp.universityeducations" :key="edu.UE_ID" class="mb-3">
+                                        <p><strong>Degree/Diploma:</strong> {{ edu.DegreeOrDiploma }}</p>
+                                        <p><strong>Institute:</strong> {{ edu.Institute }}</p>
+                                        <p><strong>Years:</strong> {{ edu.FromYear }} - {{ edu.ToYear }}</p>
+                                        <p><strong>Class:</strong> {{ edu.Class }}</p>
+                                        <p><strong>Main Subjects:</strong>
+                                            <span v-for="sub in edu.firstdegreesubjects" :key="sub.SubjectID">{{
+                                                sub.MainSubject }}{{
+                                                    edu.firstdegreesubjects.length > 1 ? ', ' : '' }}</span>
+                                        </p>
+                                        <hr>
+                                    </div>
+                                </div>
+                                <p v-else>No university education details available.</p>
                             </div>
 
                             <!-- Qualifications Tab -->
                             <div class="tab-pane fade" id="qualifications" role="tabpanel">
-                                <p v-if="!selectedApp.Qualifications">No qualifications details available.</p>
-                                <ul v-else>
-                                    <li v-for="q in selectedApp.Qualifications" :key="q.id">
-                                        {{ q.Name }} - {{ q.Description }}
-                                    </li>
-                                </ul>
+                                <div v-if="selectedApp.professionalqualifications?.length">
+                                    <ul>
+                                        <li v-for="pq in selectedApp.professionalqualifications" :key="pq.PQ_ID">
+                                            {{ pq.QualificationName }} - {{ pq.Institution }} ({{ pq.FromYear }} -
+                                            {{ pq.ToYear }})
+                                        </li>
+                                    </ul>
+                                </div>
+                                <p v-else>No professional qualifications available.</p>
                             </div>
 
                             <!-- References Tab -->
                             <div class="tab-pane fade" id="references" role="tabpanel">
-                                <p v-if="!selectedApp.References">No references available.</p>
-                                <ul v-else>
-                                    <li v-for="ref in selectedApp.References" :key="ref.id">
-                                        {{ ref.Name }} - {{ ref.Designation }}
-                                    </li>
-                                </ul>
+                                <div v-if="selectedApp.applicationreferences?.length">
+                                    <ul>
+                                        <li v-for="ref in selectedApp.applicationreferences" :key="ref.ReferenceID">
+                                            <strong>{{ ref.Name }}</strong> — {{ ref.Designation }}<br>
+                                            <small>{{ ref.Address }}</small>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <p v-else>No references available.</p>
                             </div>
                         </div>
                     </div>
@@ -166,7 +214,7 @@
 import api from "@/services/api";
 import AdminNavbar from "@/components/NavbarAdmin.vue";
 import Swal from "sweetalert2";
-import { Modal } from "bootstrap"; // ✅ Import Bootstrap Modal
+import { Modal } from "bootstrap"; //  Import Bootstrap Modal
 
 
 export default {
@@ -175,32 +223,75 @@ export default {
     },
     data() {
         return {
+            jobs: [],
             applications: [],
+            filteredApplications: [],
             selectedApp: null,
             newStatus: "",
             modalInstance: null,
+            filters: {
+                jobName: "",
+                fromDate: "",
+                toDate: "",
+            },
         };
     },
     methods: {
+        async loadJobs() {
+            try {
+                const res = await api.get("/api/admin/jobs-all");
+                this.jobs = res.data.data || [];
+            } catch (err) {
+                Swal.fire("Error", "Failed to load jobs", "error");
+            }
+        },
+
         async loadApplications() {
             try {
                 const res = await api.get("/api/applications/applications-all");
-                this.applications = res.data.data || res.data;
+                this.applications = res.data.data || [];
+
+                this.filteredApplications = [...this.applications];
             } catch (err) {
                 Swal.fire("Error", "Failed to load applications", "error");
             }
         },
-        openModal(app) {
-            this.selectedApp = app;
-            this.newStatus = app.Status;
 
-            // ✅ Show modal AFTER data is set
-            this.$nextTick(() => {
-                if (!this.modalInstance) {
-                    this.modalInstance = new Modal(document.getElementById("appModal"));
-                }
-                this.modalInstance.show();
+        applyFilters() {
+            this.filteredApplications = this.applications.filter((app) => {
+                const jobMatch = this.filters.jobName
+                    ? app.PostApplied === this.filters.jobName
+                    : true;
+
+                const fromMatch = this.filters.fromDate
+                    ? new Date(app.SubmissionDate) >= new Date(this.filters.fromDate)
+                    : true;
+
+                const toMatch = this.filters.toDate
+                    ? new Date(app.SubmissionDate) <= new Date(this.filters.toDate)
+                    : true;
+
+                return jobMatch && fromMatch && toMatch;
             });
+        },
+        async openModal(app) {
+            try {
+                //  Fetch full application details from backend
+                const res = await api.get(`/api/admin/applications/${app.ApplicationID}`);
+                this.selectedApp = res.data.data; // store full details
+                this.newStatus = this.selectedApp.Status;
+
+                // Show modal after setting data
+                this.$nextTick(() => {
+                    if (!this.modalInstance) {
+                        this.modalInstance = new Modal(document.getElementById("appModal"));
+                    }
+                    this.modalInstance.show();
+                });
+            } catch (err) {
+                console.error("Failed to fetch application details:", err);
+                Swal.fire("Error", "Failed to load full application details", "error");
+            }
         },
         statusBadge(status) {
             switch (status) {
@@ -256,12 +347,15 @@ export default {
         async downloadCV() {
             try {
                 const token = localStorage.getItem("adminToken");
-                const response = await api.get(`/api/applications/download-cv/${this.selectedApp.ApplicationID}`, {
-                    responseType: "blob",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+
+                //  Updated API path
+                const response = await api.get(
+                    `/api/applications/download-cv/${this.selectedApp.ApplicationID}`,
+                    {
+                        responseType: "blob",
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
+                );
 
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement("a");
@@ -278,6 +372,7 @@ export default {
         },
     },
     mounted() {
+        this.loadJobs();
         this.loadApplications();
     },
 };

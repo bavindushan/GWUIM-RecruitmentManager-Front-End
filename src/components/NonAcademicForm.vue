@@ -214,7 +214,7 @@
 
             <!-- Download and Complete Submission Button -->
             <button class="btn btn-success btn-lg" @click="DownloadandComplete">
-                <i class="bi bi-download me-2"></i> Download and Complete Submission
+                <i class="bi bi-download me-2"></i> Download Application and Complete Submission
             </button>
         </div>
     </div>
