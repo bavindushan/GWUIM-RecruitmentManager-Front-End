@@ -19,7 +19,7 @@
         </section>
 
         <!-- Stats Section -->
-        <section class="stats-section py-5 bg-white">
+        <!-- <section class="stats-section py-5 bg-white">
             <div class="container">
                 <div class="row text-center">
                     <div class="col-md-4 mb-4" v-for="stat in stats" :key="stat.label">
@@ -30,10 +30,10 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <!-- Features Section -->
-        <section class="features py-6 bg-gradient-light">
+        <!-- <section class="features py-6 bg-gradient-light">
             <div class="container">
                 <div class="text-center mb-5">
                     <h2 class="section-title mb-3">Why Choose GWUIM?</h2>
@@ -57,7 +57,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <!-- Process Section -->
         <section class="process-section py-6 bg-white">

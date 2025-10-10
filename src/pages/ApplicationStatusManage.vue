@@ -214,7 +214,7 @@
 import api from "@/services/api";
 import AdminNavbar from "@/components/NavbarAdmin.vue";
 import Swal from "sweetalert2";
-import { Modal } from "bootstrap"; // ✅ Import Bootstrap Modal
+import { Modal } from "bootstrap"; //  Import Bootstrap Modal
 
 
 export default {
@@ -237,53 +237,42 @@ export default {
         };
     },
     methods: {
-        methods: {
-            async loadJobs() {
-                try {
-                    const res = await api.get("/api/admin/jobs-all");
-                    this.jobs = res.data.data || [];
-                } catch (err) {
-                    Swal.fire("Error", "Failed to load jobs", "error");
-                }
-            },
+        async loadJobs() {
+            try {
+                const res = await api.get("/api/admin/jobs-all");
+                this.jobs = res.data.data || [];
+            } catch (err) {
+                Swal.fire("Error", "Failed to load jobs", "error");
+            }
+        },
 
-            async loadApplications() {
-                try {
-                    const res = await api.get("/api/applications/applications-all");
-                    this.applications = res.data.data || [];
+        async loadApplications() {
+            try {
+                const res = await api.get("/api/applications/applications-all");
+                this.applications = res.data.data || [];
 
-                    // ✅ map PostApplied from application.jobvacancy.Title
-                    this.applications = this.applications.map(app => {
-                        const job = app.application?.[0]?.jobvacancy;
-                        return {
-                            ...app,
-                            PostApplied: job?.Title || 'N/A',
-                        };
-                    });
+                this.filteredApplications = [...this.applications];
+            } catch (err) {
+                Swal.fire("Error", "Failed to load applications", "error");
+            }
+        },
 
-                    this.filteredApplications = this.applications;
-                } catch (err) {
-                    Swal.fire("Error", "Failed to load applications", "error");
-                }
-            },
+        applyFilters() {
+            this.filteredApplications = this.applications.filter((app) => {
+                const jobMatch = this.filters.jobName
+                    ? app.PostApplied === this.filters.jobName
+                    : true;
 
-            applyFilters() {
-                this.filteredApplications = this.applications.filter((app) => {
-                    const jobMatch = this.filters.jobName
-                        ? app.PostApplied === this.filters.jobName
-                        : true;
+                const fromMatch = this.filters.fromDate
+                    ? new Date(app.SubmissionDate) >= new Date(this.filters.fromDate)
+                    : true;
 
-                    const fromMatch = this.filters.fromDate
-                        ? new Date(app.CreatedAt) >= new Date(this.filters.fromDate)
-                        : true;
+                const toMatch = this.filters.toDate
+                    ? new Date(app.SubmissionDate) <= new Date(this.filters.toDate)
+                    : true;
 
-                    const toMatch = this.filters.toDate
-                        ? new Date(app.CreatedAt) <= new Date(this.filters.toDate)
-                        : true;
-
-                    return jobMatch && fromMatch && toMatch;
-                });
-            },
+                return jobMatch && fromMatch && toMatch;
+            });
         },
         async openModal(app) {
             try {
@@ -292,7 +281,7 @@ export default {
                 this.selectedApp = res.data.data; // store full details
                 this.newStatus = this.selectedApp.Status;
 
-                // ✅ Show modal after setting data
+                // Show modal after setting data
                 this.$nextTick(() => {
                     if (!this.modalInstance) {
                         this.modalInstance = new Modal(document.getElementById("appModal"));
@@ -359,7 +348,7 @@ export default {
             try {
                 const token = localStorage.getItem("adminToken");
 
-                // ✅ Updated API path
+                //  Updated API path
                 const response = await api.get(
                     `/api/applications/download-cv/${this.selectedApp.ApplicationID}`,
                     {
@@ -383,7 +372,7 @@ export default {
         },
     },
     mounted() {
-        this.loadJobs();   
+        this.loadJobs();
         this.loadApplications();
     },
 };
