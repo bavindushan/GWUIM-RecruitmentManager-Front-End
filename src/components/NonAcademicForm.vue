@@ -216,7 +216,17 @@
             <button class="btn btn-success btn-lg" @click="DownloadandComplete">
                 <i class="bi bi-download me-2"></i> Download Application and Complete Submission
             </button>
+
+            <!-- Download and Complete Submission Button (Non-Academic) -->
+            <a href="/assets/Application-NA.pdf" download="Application-NA.pdf" class="btn btn-danger btn-lg">
+                <i class="bi bi-download me-2"></i>
+                Download Empty Application for Apply via Post <br>
+                (Applying via Post is Mandatory!!) <br> 
+                තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
+            </a>
+
         </div>
+
     </div>
 </template>
 

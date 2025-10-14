@@ -409,16 +409,21 @@
 
         <!-- Actions: Delete & Download -->
         <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
-            <!-- Delete All Details Button -->
-            <!-- <button class="btn btn-danger btn-lg" @click="deleteAllApplicationData">
-                <i class="bi bi-trash me-2"></i> Remove All Details Submitted
-            </button> -->
-
             <!-- Download and Complete Submission Button -->
             <button class="btn btn-success btn-lg" @click="DownloadandComplete">
                 <i class="bi bi-download me-2"></i> Download Application and Complete Submission
             </button>
+
+            <!-- Download Empty Application Button (Academic) -->
+            <a href="/assets/Application-AC.pdf" download="Application-AC.pdf" class="btn btn-danger btn-lg">
+                <i class="bi bi-download me-2"></i>
+                Download Empty Application for Apply via Post <br>
+                (Applying via Post is Mandatory!!) <br> 
+                තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
+            </a>
+
         </div>
+
     </div>
 </template>
 
