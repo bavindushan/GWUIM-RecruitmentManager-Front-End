@@ -620,7 +620,7 @@ export default {
                 doc.setFontSize(14);
                 doc.text(
                     "GAMPAHA WICKRAMARACHCHI UNIVERSITY OF INDIGENOUS MEDICINE, SRI LANKA",
-                    10, 15
+                    60, 15
                 );
 
                 doc.setFontSize(11);
@@ -709,7 +709,7 @@ export default {
                     ]],
                     body,
                     startY: yAfterSubject + 7,
-                    margin: { left: 8, right: 8 },
+                    margin: { left: 4, right: 8 },
                     styles: {
                         fontSize: 8,
                         cellPadding: 1.5,
