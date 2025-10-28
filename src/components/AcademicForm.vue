@@ -407,24 +407,29 @@
             </div>
         </div>
 
-        <!-- Actions: Delete & Download -->
-        <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
-            <!-- Download and Complete Submission Button -->
-            <button class="btn btn-success btn-lg" @click="DownloadandComplete">
-                <i class="bi bi-download me-2"></i> Download Application and Complete Submission
-            </button>
+    <!-- Actions: Complete & Download -->
+    <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+      <!-- Download and Complete Submission Button -->
+      <button class="btn btn-success btn-lg" @click="DownloadandComplete">
+        <i class="bi bi-download me-2"></i> Download Application and Complete
+        Submission <br/>
+        (Applying via Post is Mandatory!!) <br />
+        තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
+      </button>
 
-            <!-- Download Empty Application Button (Academic) -->
-            <a href="/assets/Application-AC.pdf" download="Application-AC.pdf" class="btn btn-danger btn-lg">
-                <i class="bi bi-download me-2"></i>
-                Download Empty Application for Apply via Post <br>
-                (Applying via Post is Mandatory!!) <br> 
-                තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
-            </a>
-
-        </div>
-
+      <!-- Download Empty Application Button (Academic) -->
+      <!-- <a
+        href="/assets/Application-AC.pdf"
+        download="Application-AC.pdf"
+        class="btn btn-danger btn-lg"
+      >
+        <i class="bi bi-download me-2"></i>
+        Download Empty Application for Apply via Post <br />
+        (Applying via Post is Mandatory!!) <br />
+        තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
+      </a> -->
     </div>
+  </div>
 </template>
 
 <script>
