@@ -57,7 +57,7 @@ const token = localStorage.getItem("token"); // token accessible globally
 async function fetchJobDetails() {
     try {
         // Fetch job details
-        const res = await axios.get(`http://localhost:5000/api/jobs/${jobId}`, {
+        const res = await axios.get(`http://172.17.141.3:5000/api/jobs/${jobId}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         job.value = res.data.data;
@@ -66,7 +66,7 @@ async function fetchJobDetails() {
 
         // Check if user has already applied
         const checkRes = await axios.get(
-            `http://localhost:5000/api/applications/check-applied?jobId=${jobId}`,
+            `http://172.17.141.3:5000/api/applications/check-applied?jobId=${jobId}`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
         alreadyApplied.value = checkRes.data.applied;

@@ -245,6 +245,9 @@
                         <button class="btn btn-info text-white" @click="downloadCV">
                             <i class="bi bi-file-earmark-arrow-down"></i> Download CV
                         </button>
+                        <button class="btn btn-secondary text-white" @click="downloadTrancecript">
+                            <i class="bi bi-file-earmark-arrow-down"></i> Download Trancecript
+                        </button>
                         <button type="button" class="bi bi-x-square btn btn-danger" data-bs-dismiss="modal">
                             Close
                         </button>
@@ -432,6 +435,32 @@ export default {
                 Swal.fire("Error", "Failed to download CV", "error");
             }
         },
+        async downloadTrancecript() {
+          try {
+              const token = localStorage.getItem("adminToken");
+            
+              // Same endpoint, backend distinguishes by fileType (transcript/pdf)
+              const response = await api.get(
+                  `/api/applications/download-transcript/${this.selectedApp.ApplicationID}`,
+                  {
+                      responseType: "blob",
+                      headers: { Authorization: `Bearer ${token}` },
+                  }
+              );
+              
+              const url = window.URL.createObjectURL(new Blob([response.data]));
+              const link = document.createElement("a");
+              link.href = url;
+              link.setAttribute("download", `transcript_${this.selectedApp.ApplicationID}.pdf`);
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+          } catch (err) {
+              console.error("Download Transcript error:", err);
+              Swal.fire("Error", "Failed to download transcript", "error");
+          }
+        },
         exportToExcel() {
             if (!this.filteredApplications.length) {
                 Swal.fire("Info", "No applications to export", "info");
@@ -446,179 +475,118 @@ export default {
             const formatList = (list, mapper) =>
                 list?.length ? list.map(mapper).join("\n") : "N/A";
 
-            // Create workbook
+            // === Create workbook ===
             const workbook = XLSX.utils.book_new();
 
-            this.filteredApplications.forEach((app, index) => {
-                const post = app.PostApplied || "N/A";
-                const department = app.Department || "Department Not Specified";
-                const subject = app.Description || "N/A";
+            // === Create common worksheet data ===
+            const worksheetData = [
+                ["GAMPAHA WICKRAMARACHCHI UNIVERSITY OF INDIGENOUS MEDICINE, SRI LANKA"],
+                ["RECRUITMENT APPLICATION SUMMARY"],
+                [""],
+                [`Interview Date: ${this.interview.date}`, `Venue: ${this.interview.venue}`, `Time: ${this.interview.time}`],
+                [""],
+                [
+                "App No.",
+                "Full Name & Address",
+                "Date of Birth & Age",
+                "Educational Qualifications",
+                "Professional Qualifications",
+                "Research & Publications",
+                "Present Post & Salary",
+                "Academic Distinctions",
+                "Professional Experience",
+                "Extra-Curricular Activities"
+                ]
+            ];
 
-                // === DOB and Age ===
+            // === Add each applicant as a row ===
+            this.filteredApplications.forEach((app) => {
                 const dob = app.applicationgeneraldetails?.DOB
-                    ? new Date(app.applicationgeneraldetails.DOB).toLocaleDateString()
-                    : "N/A";
+                ? new Date(app.applicationgeneraldetails.DOB).toLocaleDateString()
+                : "N/A";
                 const age = this.calculateAge(app.applicationgeneraldetails?.DOB) || "-";
+                const dobAndAge = `${dob}\n(${age} yrs)`;
 
-                // === FULL NAME & ADDRESS ===
-                const fullNameAndAddress = `${app.FullName || "N/A"}\n\n${app.applicationgeneraldetails?.PresentAddress || "N/A"}\n\n${app.Email || "N/A"}\n\n${app.applicationgeneraldetails?.PhoneNumber || "N/A"}`;
+                const fullNameAndAddress = `${app.FullName || "N/A"}\n${app.applicationgeneraldetails?.PresentAddress || "N/A"}\n${app.Email || "N/A"}\n${app.applicationgeneraldetails?.PhoneNumber || "N/A"}`;
 
-                // === DOB & AGE formatted ===
-                const dobAndAge = `${dob}\n\n(${age} yrs)`;
-
-                // === EDUCATIONAL QUALIFICATIONS ===
                 const education = formatList(app.universityeducations, edu =>
-                    `${edu.DegreeOrDiploma || ""} (${edu.Institute || "N/A"})`
+                `${edu.DegreeOrDiploma || ""} (${edu.Institute || "N/A"})`
                 );
 
-                // === PROFESSIONAL QUALIFICATIONS ===
                 const professionalQuals = formatList(app.professionalqualifications, pq =>
-                    `${pq.QualificationName || ""} (${pq.Institution || "N/A"})`
+                `${pq.QualificationName || ""} (${pq.Institution || "N/A"})`
                 );
 
-                // === RESEARCH & PUBLICATIONS ===
-                const research = formatList(app.researchandpublications, rp =>
-                    rp.Description
-                );
+                const research = formatList(app.researchandpublications, rp => rp.Description);
 
-                // === PRESENT POST & SALARY ===
                 const currentEmployment = app.employmenthistories?.find(emp => !emp.ToDate);
                 let presentPostInfo = "N/A";
                 if (currentEmployment) {
-                    const fromDate = currentEmployment.FromDate
-                        ? new Date(currentEmployment.FromDate).toLocaleDateString()
-                        : "N/A";
-                    const salary = currentEmployment.LastSalary
-                        ? `Rs. ${currentEmployment.LastSalary}`
-                        : "N/A";
-                    presentPostInfo = `${currentEmployment.PostHeld || "N/A"} at ${currentEmployment.Institution || "N/A"} (${fromDate} - Present) - ${salary}`;
+                const fromDate = currentEmployment.FromDate
+                    ? new Date(currentEmployment.FromDate).toLocaleDateString()
+                    : "N/A";
+                const salary = currentEmployment.LastSalary
+                    ? `Rs. ${currentEmployment.LastSalary}`
+                    : "N/A";
+                presentPostInfo = `${currentEmployment.PostHeld || "N/A"} at ${currentEmployment.Institution || "N/A"} (${fromDate} - Present) - ${salary}`;
                 }
 
-                // === PROFESSIONAL EXPERIENCE ===
-                const experience = formatList(app.experiencedetails, exp =>
-                    exp.Description
-                );
+                const experience = formatList(app.experiencedetails, exp => exp.Description);
+                const extraCurricular = formatList(app.specialqualifications, sq => sq.Description);
 
-                // === EXTRA-CURRICULAR ===
-                const extraCurricular = formatList(app.specialqualifications, sq =>
-                    sq.Description
-                );
-
-                // === ACADEMIC DISTINCTIONS (Placeholder) ===
-                const academicDistinctions = "Academic Distinctions N/A";
-
-                // === Create Worksheet Data ===
-                const worksheetData = [
-                    ["GAMPAHA WICKRAMARACHCHI UNIVERSITY OF INDIGENOUS MEDICINE, SRI LANKA"],
-                    [`RECRUITMENT FOR THE POSTS OF ${post}`],
-                    [`DEPARTMENT: ${department}`],
-                    [`SUBJECT: ${subject}`],
-                    [""],
-                    [`Date - ${this.interview.date}`, "", `Interview No. ${app.ApplicationID}`, `Venue – ${this.interview.venue}`, `Time – ${this.interview.time}`],
-                    [""],
-                    [
-                        "App No.",
-                        "FULL NAME & ADDRESS",
-                        "DATE OF BIRTH & AGE",
-                        "EDUCATIONAL QUALIFICATIONS",
-                        "PROFESSIONAL QUALIFICATIONS RELATED TO THE POST APPLIED",
-                        "RESEARCH & PUBLICATIONS",
-                        "PRESENT POST & SALARY",
-                        "ACADEMIC DISTINCTION AT UNIVERSITY LEVEL",
-                        "PROFESSIONAL EXPERIENCE",
-                        "EXTRA-CURRICULAR ACTIVITIES"
-                    ],
-                    [
-                        app.ApplicationID,
-                        fullNameAndAddress,
-                        dobAndAge,
-                        education,
-                        professionalQuals,
-                        research,
-                        presentPostInfo,
-                        academicDistinctions,
-                        experience,
-                        extraCurricular
-                    ]
-                ];
-
-                const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-                // === Merge header cells ===
-                worksheet['!merges'] = [
-                    { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
-                    { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
-                    { s: { r: 2, c: 0 }, e: { r: 2, c: 9 } },
-                    { s: { r: 3, c: 0 }, e: { r: 3, c: 9 } }
-                ];
-
-                // === Set Column Widths ===
-                worksheet['!cols'] = [
-                    { wch: 10 },
-                    { wch: 35 },
-                    { wch: 18 },
-                    { wch: 30 },
-                    { wch: 30 },
-                    { wch: 25 },
-                    { wch: 30 },
-                    { wch: 25 },
-                    { wch: 30 },
-                    { wch: 25 }
-                ];
-
-                // === Styling ===
-                const range = XLSX.utils.decode_range(worksheet['!ref']);
-                for (let R = range.s.r; R <= range.e.r; ++R) {
-                    for (let C = range.s.c; C <= range.e.c; ++C) {
-                        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-                        if (!worksheet[cellAddress]) continue;
-
-                        worksheet[cellAddress].s = {
-                            alignment: { wrapText: true, vertical: "top", horizontal: "left" },
-                            border: {
-                                top: { style: "thin" },
-                                left: { style: "thin" },
-                                bottom: { style: "thin" },
-                                right: { style: "thin" }
-                            }
-                        };
-
-                        if (R <= 3) {
-                            worksheet[cellAddress].s.font = { bold: true, sz: 14 };
-                            worksheet[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
-                        } else if (R === 5) {
-                            worksheet[cellAddress].s.font = { bold: true, sz: 10 };
-                        } else if (R === 7) {
-                            worksheet[cellAddress].s.font = { bold: true, sz: 9 };
-                            worksheet[cellAddress].s.fill = { fgColor: { rgb: "D9D9D9" } };
-                            worksheet[cellAddress].s.alignment = { wrapText: true, vertical: "center", horizontal: "center" };
-                        } else if (R === 8) {
-                            worksheet[cellAddress].s.font = { sz: 8 };
-                        }
-                    }
-                }
-
-                const sheetName = `App_${app.ApplicationID}`.substring(0, 31);
-                XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+                worksheetData.push([
+                app.ApplicationID,
+                fullNameAndAddress,
+                dobAndAge,
+                education,
+                professionalQuals,
+                research,
+                presentPostInfo,
+                "N/A", // Academic distinctions placeholder
+                experience,
+                extraCurricular
+                ]);
             });
 
-            // === Download File ===
+            // === Create sheet and style ===
+            const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+            // Merge header rows
+            worksheet["!merges"] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
+            ];
+
+            worksheet["!cols"] = [
+                { wch: 10 },
+                { wch: 35 },
+                { wch: 18 },
+                { wch: 30 },
+                { wch: 30 },
+                { wch: 25 },
+                { wch: 30 },
+                { wch: 25 },
+                { wch: 30 },
+                { wch: 25 },
+            ];
+
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants Summary");
+
+            // === Download ===
             const excelBuffer = XLSX.write(workbook, {
                 bookType: "xlsx",
                 type: "array",
-                cellStyles: true
             });
             const blob = new Blob([excelBuffer], {
-                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             });
-            saveAs(blob, `Interview_Sheets_${new Date().toISOString().split("T")[0]}.xlsx`);
+            saveAs(blob, `Applicants_Summary_${new Date().toISOString().split("T")[0]}.xlsx`);
 
-            // Close modal
             const modalEl = document.getElementById("interviewSheetModal");
             const modal = bootstrap.Modal.getInstance(modalEl);
             if (modal) modal.hide();
-        }
-        ,
+        },
         generateInterviewPDF() {
             if (!this.filteredApplications.length) {
                 Swal.fire("Info", "No applications to print", "info");
@@ -629,6 +597,13 @@ export default {
                 Swal.fire("Warning", "Please fill Interview Date, Venue and Time", "warning");
                 return;
             }
+
+            // ✅ Get admin info from localStorage
+            const adminData = JSON.parse(localStorage.getItem("admin") || "{}");
+            const printedBy = adminData.fullName || "Unknown Admin";
+            const printedEmail = adminData.email || "N/A";
+            const printedDept = adminData.department || "N/A";
+            const printTime = new Date().toLocaleString();
 
             // Landscape A4
             const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
@@ -651,13 +626,19 @@ export default {
                 doc.setFontSize(11);
                 doc.text(`RECRUITMENT FOR THE POSTS OF ${post}`, 10, 23);
                 doc.text(`DEPARTMENT: ${department}`, 10, 30);
-                doc.text(`SUBJECT: ${subject}`, 10, 37);
+
+                // ✅ Split long subject into wrapped lines
+                const subjectLines = doc.splitTextToSize(`SUBJECT: ${subject}`, 270);
+                doc.text(subjectLines, 10, 37);
+
+                // Dynamic Y after subject
+                const yAfterSubject = 37 + (subjectLines.length * 5);
 
                 doc.setFontSize(10);
-                doc.text(`Date: ${this.interview.date}`, 10, 44);
-                doc.text(`Interview No: ${app.ApplicationID}`, 80, 44);
-                doc.text(`Venue: ${this.interview.venue}`, 150, 44);
-                doc.text(`Time: ${this.interview.time}`, 250, 44);
+                doc.text(`Date: ${this.interview.date}`, 10, yAfterSubject);
+                doc.text(`Interview No: ${app.ApplicationID}`, 80, yAfterSubject);
+                doc.text(`Venue: ${this.interview.venue}`, 150, yAfterSubject);
+                doc.text(`Time: ${this.interview.time}`, 250, yAfterSubject);
 
                 // === TABLE DATA ===
                 const dob = app.applicationgeneraldetails?.DOB
@@ -679,38 +660,26 @@ export default {
                     presentPostInfo = `${currentEmployment.PostHeld} at ${currentEmployment.Institution} (${fromDate}-Present) - ${salary}`;
                 }
 
-                // ✅ Helper function to format multiline data with comma + blank line
+                // ✅ Helper function for multi-line fields
                 const formatList = (list, mapper) =>
                     list?.length
                         ? list.map(mapper).map(item => `${item},\n`).join("\n")
                         : "N/A";
 
-                // === Formatted Data Fields ===
+                // === Formatted Fields ===
                 const fullNameAndAddress = `${app.FullName},\n\n${app.applicationgeneraldetails?.PresentAddress || ""},\n\n${app.Email},\n\n${app.applicationgeneraldetails?.PhoneNumber || ""}`;
-
                 const dobAndAge = `${dob},\n\n (${age} yrs)`;
 
                 const education = formatList(app.universityeducations, edu =>
                     `${edu.DegreeOrDiploma} (${edu.Institute})`
                 );
-
                 const professionalQuals = formatList(app.professionalqualifications, pq =>
                     `${pq.QualificationName} (${pq.Institution})`
                 );
+                const research = formatList(app.researchandpublications, rp => rp.Description);
+                const experience = formatList(app.experiencedetails, exp => exp.Description);
+                const extraCurricular = formatList(app.specialqualifications, sq => sq.Description);
 
-                const research = formatList(app.researchandpublications, rp =>
-                    rp.Description
-                );
-
-                const experience = formatList(app.experiencedetails, exp =>
-                    exp.Description
-                );
-
-                const extraCurricular = formatList(app.specialqualifications, sq =>
-                    sq.Description
-                );
-
-                // === BODY ROW ===
                 const body = [[
                     app.ApplicationID,
                     fullNameAndAddress,
@@ -739,7 +708,7 @@ export default {
                         "EXTRA-CURRICULAR ACTIVITIES"
                     ]],
                     body,
-                    startY: 50,
+                    startY: yAfterSubject + 7,
                     margin: { left: 8, right: 8 },
                     styles: {
                         fontSize: 8,
@@ -760,21 +729,33 @@ export default {
                         lineWidth: 0.1
                     },
                     columnStyles: {
-                        0: { cellWidth: 10 },  // App No
-                        1: { cellWidth: 45 },  // Full Name & Address
-                        2: { cellWidth: 20 },  // DOB & Age
-                        3: { cellWidth: 35 },  // Education
-                        4: { cellWidth: 35 },  // Professional Quals
-                        5: { cellWidth: 35 },  // Research
-                        6: { cellWidth: 25 },  // Present Post
-                        7: { cellWidth: 25 },  // Academic Distinctions
-                        8: { cellWidth: 35 },  // Experience
-                        9: { cellWidth: 25 }   // Extra-Curricular
+                        0: { cellWidth: 10 },
+                        1: { cellWidth: 45 },
+                        2: { cellWidth: 20 },
+                        3: { cellWidth: 35 },
+                        4: { cellWidth: 35 },
+                        5: { cellWidth: 35 },
+                        6: { cellWidth: 25 },
+                        7: { cellWidth: 25 },
+                        8: { cellWidth: 35 },
+                        9: { cellWidth: 25 }
                     },
                     tableWidth: "wrap",
+
+                    // ✅ Add footer (printed by info)
                     didDrawPage: function (data) {
                         const pageCount = doc.internal.getNumberOfPages();
                         doc.setFontSize(8);
+
+                        // Printed by info (bottom-left)
+                        doc.text(
+                            `Printed by: ${printedBy} (${printedEmail}) - ${printedDept}`,
+                            10,
+                            200
+                        );
+                        doc.text(`Printed on: ${printTime}`, 10, 205);
+
+                        // Page number (bottom-right)
                         doc.text(`Page ${index + 1} of ${pageCount}`, 270, 200, { align: "right" });
                     }
                 });

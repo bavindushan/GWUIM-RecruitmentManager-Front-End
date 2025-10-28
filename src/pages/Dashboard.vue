@@ -20,18 +20,32 @@
                 <div class="col-md-3">
                     <select class="form-select" v-model="selectedDepartment">
                         <option value="">Select Department</option>
-                        <option value="IT">IT</option>
-                        <option value="HR">HR</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Computer Science">Computer Science</option>
+                        <option value="Department of Ayurveda Basic Principles">Department of Ayurveda Basic Principles</option>
+                        <option value="Department of Cikitsa">Department of Cikitsa</option>
+                        <option value="Department of Drvyaguna vignatha">Department of Drvyaguna vignatha</option>
+                        <option value="Department of Kaumarabhruthya and Streeroga">Department of Kaumarabhruthya and Streeroga</option>
+                        <option value="Department of Shalyashalakya">Department of Shalyashalakya</option>
+                        <option value="Department of Languages">Department of Languages</option>
+                        <option value="Department of Rogavijnana">Department of Rogavijnana</option>
+                        <option value="Department of Desheeya Cikitsa">Department of Desheeya Cikitsa</option>
+                        <option value="Department of Indigenous Helth Sciences">Department of Indigenous Helth Sciences</option>
+                        <option value="Department of Technology">Department of Technology</option>
+                        <option value="Department of Indigenous Medical Resources">Department of Indigenous Medical Resources</option>
+                        <option value="Department of Indigenous Social Sciences">Department of Indigenous Social Sciences</option>
+                        <option value="Department of Management Studies">Department of Management Studies</option>
+                        <option value="Department of Information Technology">Department of Information Technology</option>
+                        <option value="Other">Other</option>
+                        <option value="Admin">Admin</option>
                     </select>
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" v-model="selectedLevel">
                         <option value="">Select Level</option>
-                        <option value="Entry">Entry Level</option>
-                        <option value="Mid">Mid Level</option>
-                        <option value="Senior">Senior Level</option>
+                        <option value="Grade (i)">Grade (i)</option>
+                        <option value="Grade (ii)">Grade (ii)</option>
+                        <option value="Grade (iii)">Grade (iii)</option>
+                        <option value="Other">Other</option>
+                        <option value="N/A">N/A</option>
                     </select>
                 </div>
                 <div class="col-md-3">

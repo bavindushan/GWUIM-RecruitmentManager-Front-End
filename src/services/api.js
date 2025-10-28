@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import router from "@/router";
 
 const api = axios.create({
-    baseURL: "http://localhost:5000",
+    baseURL: "http://172.17.141.3:5000",
     timeout: 10000,
 });
 

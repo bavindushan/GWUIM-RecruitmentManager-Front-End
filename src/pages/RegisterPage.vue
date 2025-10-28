@@ -127,7 +127,7 @@ export default {
             try {
                 // Call API
                 const response = await axios.post(
-                    "http://localhost:5000/api/user/register",
+                    "http://172.17.141.3:5000/api/user/register",
                     {
                         FullName: this.form.FullName,
                         Email: this.form.Email,

@@ -52,6 +52,7 @@
 import { ref } from "vue";
 import Swal from "sweetalert2";
 import axios from "axios";
+import api from "@/services/api";
 import NavbarDashboard from "@/components/NavbarDashboard.vue";
 import FooterComponent from "@/components/FooterComponent.vue";
 
@@ -75,7 +76,7 @@ const handleLogin = async () => {
         if (!accept) return;
 
         // Send login request
-        const response = await axios.post("http://localhost:5000/api/user/sign-in", {
+        const response = await api.post("/api/user/sign-in", {
             email: email.value,
             password: password.value,
         });
