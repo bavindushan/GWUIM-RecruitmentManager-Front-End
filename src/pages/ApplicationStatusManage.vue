@@ -667,7 +667,7 @@ export default {
                         : "N/A";
 
                 // === Formatted Fields ===
-                const fullNameAndAddress = `${app.FullName},\n\n${app.applicationgeneraldetails?.PresentAddress || ""},\n\n${app.Email},\n\n${app.applicationgeneraldetails?.PhoneNumber || ""}`;
+                const fullNameAndAddress = `${app.FullName},\n\n${app.applicationgeneraldetails?.PresentAddress || ""},\n\n${app.Email},\n\n${app.applicationgeneraldetails?.PhoneNumber || ""},\n\n${app.applicationgeneraldetails?.NIC || ""}`;
                 const dobAndAge = `${dob},\n\n (${age} yrs)`;
 
                 const education = formatList(app.universityeducations, edu =>
