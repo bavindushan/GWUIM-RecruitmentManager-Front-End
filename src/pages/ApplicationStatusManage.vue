@@ -636,7 +636,7 @@ export default {
 
                 doc.setFontSize(10);
                 doc.text(`Date: ${this.interview.date}`, 10, yAfterSubject);
-                doc.text(`Interview No: ${app.ApplicationID}`, 80, yAfterSubject);
+                doc.text(`Interview No: `, 80, yAfterSubject);  //${app.ApplicationID} 
                 doc.text(`Venue: ${this.interview.venue}`, 150, yAfterSubject);
                 doc.text(`Time: ${this.interview.time}`, 250, yAfterSubject);
 
