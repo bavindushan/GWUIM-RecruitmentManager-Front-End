@@ -668,7 +668,6 @@ export default {
                 }
 
 
-
                 // ✅ Helper function for multi-line fields
                 const formatList = (list, mapper) =>
                     list?.length
