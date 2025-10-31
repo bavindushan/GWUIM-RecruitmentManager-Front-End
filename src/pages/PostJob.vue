@@ -69,9 +69,9 @@
                 </div>
 
                 <div class="col-12">
-                    <label class="form-label">Description/Subjects</label>
+                    <label class="form-label">Description/Subjects (*this will add as SUBJECT feald in Interview Summary Table!*)</label>
                     <textarea class="form-control" rows="4" v-model="job.description"
-                        placeholder="Enter Job Description"></textarea>
+                        placeholder="Enter Job Description/Subject"></textarea>
                 </div>
 
                 <div class="col-md-6">
@@ -86,6 +86,27 @@
                     <i class="bi bi-upload me-2"></i> Publish
                 </button>
             </div>
+
+             <!-- Delete Job Section -->
+            <h2 class="text-center mb-4 mt-5">Delete Job Vacancy</h2>
+
+            <div class="col-md-6">
+                <label class="form-label">Select Job to Delete</label>
+                <select class="form-select" v-model="selectedJob">
+                    <option value="">-- Select Job --</option>
+                    <option v-for="job in jobs" :key="job.JobID" :value="job.JobID">
+                        {{ job.Title }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Delete Button -->
+            <div class="text-center mt-4">
+                <button class="btn btn-danger px-5" @click="deleteJob">
+                    <i class="bi bi-trash me-2"></i> Delete Job
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -118,13 +139,31 @@ const job = ref({
 
 // Templates
 const templates = ref([]);
+// List of jobs
+const jobs = ref([]);  // Initialize jobs as a ref
 
+// Selected job for deletion
+const selectedJob = ref('');
+
+// Load jobs on mount
 onMounted(async () => {
-
     // Set admin ID from local storage
     const admin = JSON.parse(localStorage.getItem("admin"));
     if (admin?.id) job.value.PostedBy = admin.id;
+
+    // Fetch jobs
+    loadJobs();
 });
+
+const loadJobs = async () => {
+    try {
+        const res = await api.get("/api/admin/jobs-all");
+        jobs.value = res.data.data || [];  // Use jobs.value to update the jobs list
+    } catch (err) {
+        Swal.fire("Error", "Failed to load jobs", "error");
+    }
+};
+
 
 // Publish job
 const publishJob = async () => {
@@ -161,6 +200,28 @@ const publishJob = async () => {
     } catch (err) {
         console.error("Job Post Error:", err.response?.data || err);
         Swal.fire("Error", err.response?.data?.message || "Failed to post job.", "error");
+    }
+};
+
+// Delete job
+const deleteJob = async () => {
+    if (!selectedJob.value) {
+        Swal.fire("Error", "Please select a job to delete.", "warning");
+        return;
+    }
+
+    try {
+        const res = await api.delete(`/api/admin/job-vacancy/${selectedJob.value}`);
+        if (res.data.status === "success") {
+            Swal.fire("Success", res.data.message || "Job deleted successfully!", "success");
+            // Refresh the jobs list after deletion
+            loadJobs();
+        } else {
+            Swal.fire("Error", res.data.message || "Failed to delete job.", "error");
+        }
+    } catch (err) {
+        console.error("Error deleting job:", err);
+        Swal.fire("Error", err.response?.data?.message || "Failed to delete job.", "error");
     }
 };
 
@@ -210,4 +271,14 @@ const logout = () => {
     box-shadow: #660B05 0px 4px 15px;
     transition: box-shadow 0.3s ease-in-out;
 }
+/* Change text color of select dropdown */
+.form-select {
+    color: black; /* Set text color to black */
+}
+
+/* Ensure option text inside the select dropdown is also black */
+.form-select option {
+    color: black; /* Set option text color to black */
+}
+
 </style>
