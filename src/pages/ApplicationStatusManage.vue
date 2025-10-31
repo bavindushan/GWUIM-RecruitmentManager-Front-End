@@ -648,19 +648,26 @@ export default {
                     : "N/A";
                 const age = this.calculateAge(app.applicationgeneraldetails?.DOB) || "-";
 
-                // ✅ Get only current employment (ToDate == null)
-                const currentEmployment = app.employmenthistories?.find(emp => !emp.ToDate);
+                // ✅ Format all employment histories for PDF
                 let presentPostInfo = "N/A";
-                if (currentEmployment) {
-                    const fromDate = currentEmployment.FromDate
-                        ? new Date(currentEmployment.FromDate).toLocaleDateString()
-                        : "N/A";
-                    const salary = currentEmployment.LastSalary
-                        ? `Rs. ${currentEmployment.LastSalary}`
-                        : "N/A";
 
-                    presentPostInfo = `${currentEmployment.PostHeld} at ${currentEmployment.Institution} (${fromDate}-Present) - ${salary}`;
+                if (Array.isArray(app.employmenthistories) && app.employmenthistories.length) {
+                    presentPostInfo = app.employmenthistories
+                        .map(emp => {
+                            const fromDate = emp.FromDate ? new Date(emp.FromDate).toLocaleDateString() : "N/A";
+                            const toDate = emp.ToDate ? new Date(emp.ToDate).toLocaleDateString() : "Present";
+                            const salary = emp.LastSalary !== null && emp.LastSalary !== undefined 
+                                ? `Rs. ${Number(emp.LastSalary).toLocaleString()}` 
+                                : "N/A";
+                            const post = emp.PostHeld || "N/A";
+                            const institute = emp.Institution || "N/A";
+
+                            return `${post} at ${institute} (${fromDate} - ${toDate}) - ${salary}`;
+                        })
+                        .join("\n\n"); // Double newline adds visible space between jobs
                 }
+
+
 
                 // ✅ Helper function for multi-line fields
                 const formatList = (list, mapper) =>
