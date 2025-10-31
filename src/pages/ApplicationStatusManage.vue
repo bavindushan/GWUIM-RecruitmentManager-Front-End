@@ -656,13 +656,13 @@ export default {
                         .map(emp => {
                             const fromDate = emp.FromDate ? new Date(emp.FromDate).toLocaleDateString() : "N/A";
                             const toDate = emp.ToDate ? new Date(emp.ToDate).toLocaleDateString() : "Present";
-                            const salary = emp.LastSalary !== null && emp.LastSalary !== undefined 
-                                ? `Rs. ${Number(emp.LastSalary).toLocaleString()}` 
-                                : "N/A";
+                            // const salary = emp.LastSalary !== null && emp.LastSalary !== undefined 
+                            //     ? `Rs. ${Number(emp.LastSalary).toLocaleString()}` 
+                            //     : "N/A";
                             const post = emp.PostHeld || "N/A";
                             const institute = emp.Institution || "N/A";
 
-                            return `${post} at ${institute} (${fromDate} - ${toDate}) - ${salary}`;
+                            return `${post} at ${institute} (${fromDate} - ${toDate})`;
                         })
                         .join("\n\n"); // Double newline adds visible space between jobs
                 }
@@ -723,7 +723,7 @@ export default {
                         "EDUCATION QUALIFICATIONS",
                         "PROFESSIONAL QUALIFICATIONS RELATED TO THE POST APPLIED",
                         "RESEARCH & PUBLICATIONS",
-                        "PRESENT POST & SALARY",
+                        "EMPLOYMENT DETAILS",
                         "ACADEMIC DISTINCTION AT UNIVERSITY LEVEL",
                         "PROFESSIONAL EXPERIENCE",
                         "EXTRA-CURRICULAR ACTIVITIES"

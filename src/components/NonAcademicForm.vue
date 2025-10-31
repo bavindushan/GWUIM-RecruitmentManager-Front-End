@@ -162,7 +162,7 @@
               type="text"
               v-model="edu.IndexNumber"
               class="form-control"
-              placeholder="Index Number"
+              placeholder="Effective Date"
             />
           </div>
           <div class="col-md-1 d-flex justify-content-center">
@@ -327,7 +327,7 @@
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
         <h5 class="fw-bold mb-4">
-          <i class="bi bi-briefcase me-2"></i> Experience Details
+          <i class="bi bi-briefcase me-2"></i> Experiences Related to the Job
         </h5>
         <div
           v-for="(exp, index) in experienceDetails"
@@ -363,7 +363,7 @@
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
         <h5 class="fw-bold mb-4">
-          <i class="bi bi-star me-2"></i> Special Qualifications
+          <i class="bi bi-star me-2"></i> Special Qualifications / Extra-curricular
         </h5>
         <div
           v-for="(sq, index) in specialQualifications"

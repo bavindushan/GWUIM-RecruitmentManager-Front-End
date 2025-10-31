@@ -90,7 +90,7 @@
               <th>From Year</th>
               <th>To Year</th>
               <th>Class</th>
-              <th>Year Obtained</th>
+              <th>Year Obtained/Expected</th>
               <th>Effective Date</th>
               <th class="text-center">Actions</th>
             </tr>
