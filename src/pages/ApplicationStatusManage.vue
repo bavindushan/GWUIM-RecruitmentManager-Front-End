@@ -315,6 +315,7 @@ export default {
             try {
                 const res = await api.get("/api/applications/applications-all");
                 this.applications = res.data.data || [];
+                                
 
                 this.filteredApplications = [...this.applications];
             } catch (err) {
@@ -324,6 +325,7 @@ export default {
 
         applyFilters() {
             this.filteredApplications = this.applications.filter((app) => {
+    
                 const jobMatch = this.filters.jobName
                     ? app.PostApplied === this.filters.jobName
                     : true;
@@ -673,6 +675,19 @@ export default {
                 const education = formatList(app.universityeducations, edu =>
                     `${edu.DegreeOrDiploma} (${edu.Institute})`
                 );
+
+                // Add O/L and A/L results
+                const olResults = app.gce_ol_results && app.gce_ol_results.length 
+                    ? `O/L Results: ${app.gce_ol_results.map(result => `${result.Subject} (${result.Grade})`).join(", ")}`
+                    : "O/L Results: N/A";
+
+                const alResults = app.gce_al_results && app.gce_al_results.length 
+                    ? `A/L Results: ${app.gce_al_results.map(result => `${result.Subject} (${result.Grade})`).join(", ")}`
+                    : "A/L Results: N/A";
+
+                const educationField = `${education}\n\n${olResults}\n\n${alResults}`;
+                
+
                 const professionalQuals = formatList(app.professionalqualifications, pq =>
                     `${pq.QualificationName} (${pq.Institution})`
                 );
@@ -684,7 +699,7 @@ export default {
                     app.ApplicationID,
                     fullNameAndAddress,
                     dobAndAge,
-                    education,
+                    educationField,
                     professionalQuals,
                     research,
                     presentPostInfo,
