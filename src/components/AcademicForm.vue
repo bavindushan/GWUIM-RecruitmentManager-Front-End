@@ -316,6 +316,44 @@
       </div>
     </div>
 
+    <!-- . Academic Distinctions -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+      <div class="card-body p-4 p-md-5">
+        <h5 class="fw-bold mb-4">
+          <i class="bi bi-award me-2"></i> Academic Distinctions
+        </h5>
+
+        <div
+          v-for="(ad, index) in academicDistinctions"
+          :key="index"
+          class="mb-2 d-flex gap-2"
+        >
+          <input
+            v-model="ad.Description"
+            type="text"
+            class="form-control"
+            placeholder="Description (e.g., Dean’s List - 2025, Best Research Paper Award - 2024)"
+          />
+          <button
+            class="btn btn-danger btn-sm"
+            @click="removeADRow(index)"
+            title="Remove"
+          >
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button class="btn btn-success btn-sm" @click="addADRow">
+            <i class="bi bi-plus-circle me-1"></i> Add Distinction
+          </button>
+          <button class="btn btn-primary" @click="saveAcademicDistinctions">
+            <i class="bi bi-save me-2"></i> Save Academic Distinctions
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 7. Languages Proficiency -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
@@ -696,6 +734,7 @@ export default {
       firstDegreeSubjects: [], // { universityEducationId, universityDegree, subjects: [] }
       professionalQualifications: [],
       specialQualifications: [],
+      academicDistinctions: [], 
       languagesProficiency: [],
       employmentRecords: [],
       experienceDescription: [],
@@ -924,6 +963,26 @@ export default {
       } catch (err) {
         console.error(err);
         Swal.fire("Error", "Failed to save special qualifications.", "error");
+      }
+    },
+
+    /********** Academic Distinctions **********/
+    addADRow() {
+      this.academicDistinctions.push({ Description: "" });
+    },
+    removeADRow(idx) {
+      this.academicDistinctions.splice(idx, 1);
+    },
+    async saveAcademicDistinctions() {
+      try {
+        await api.post("/api/applications/academic-distinctions", {
+          jobId: Number(this.jobId),
+          academicDistinctions: this.academicDistinctions,
+        });
+        Swal.fire("Saved", "Academic distinctions saved successfully.", "success");
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Error", "Failed to save academic distinctions.", "error");
       }
     },
 

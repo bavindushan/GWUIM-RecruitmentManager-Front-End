@@ -209,7 +209,7 @@
               type="text"
               v-model="pq.QualificationName"
               class="form-control"
-              placeholder="Qualification Name"
+              placeholder="Qualification Name with Duration"
             />
           </div>
           <div class="col-md-2">

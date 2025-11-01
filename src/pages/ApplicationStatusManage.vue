@@ -325,7 +325,7 @@ export default {
 
         applyFilters() {
             this.filteredApplications = this.applications.filter((app) => {
-    
+
                 const jobMatch = this.filters.jobName
                     ? app.PostApplied === this.filters.jobName
                     : true;
@@ -464,132 +464,164 @@ export default {
           }
         },
         exportToExcel() {
-            if (!this.filteredApplications.length) {
-                Swal.fire("Info", "No applications to export", "info");
-                return;
-            }
+    if (!this.filteredApplications.length) {
+        Swal.fire("Info", "No applications to export", "info");
+        return;
+    }
 
-            if (!this.interview.date || !this.interview.venue || !this.interview.time) {
-                Swal.fire("Warning", "Please fill Interview Date, Venue and Time", "warning");
-                return;
-            }
+    if (!this.interview.date || !this.interview.venue || !this.interview.time) {
+        Swal.fire("Warning", "Please fill Interview Date, Venue and Time", "warning");
+        return;
+    }
 
-            const formatList = (list, mapper) =>
-                list?.length ? list.map(mapper).join("\n") : "N/A";
+    // ✅ Get admin info from localStorage
+    const adminData = JSON.parse(localStorage.getItem("admin") || "{}");
+    const printedBy = adminData.fullName || "Unknown Admin";
+    const printedEmail = adminData.email || "N/A";
+    const printedDept = adminData.department || "N/A";
+    const printTime = new Date().toLocaleString();
 
-            // === Create workbook ===
-            const workbook = XLSX.utils.book_new();
+    // Helper for multi-line lists
+    const formatList = (list, mapper) =>
+        list?.length ? list.map(mapper).join("\n") : "N/A";
 
-            // === Create common worksheet data ===
-            const worksheetData = [
-                ["GAMPAHA WICKRAMARACHCHI UNIVERSITY OF INDIGENOUS MEDICINE, SRI LANKA"],
-                ["RECRUITMENT APPLICATION SUMMARY"],
-                [""],
-                [`Interview Date: ${this.interview.date}`, `Venue: ${this.interview.venue}`, `Time: ${this.interview.time}`],
-                [""],
-                [
-                "App No.",
-                "Full Name & Address",
-                "Date of Birth & Age",
-                "Educational Qualifications",
-                "Professional Qualifications",
-                "Research & Publications",
-                "Present Post & Salary",
-                "Academic Distinctions",
-                "Professional Experience",
-                "Extra-Curricular Activities"
-                ]
-            ];
+    // === Create workbook ===
+    const workbook = XLSX.utils.book_new();
 
-            // === Add each applicant as a row ===
-            this.filteredApplications.forEach((app) => {
-                const dob = app.applicationgeneraldetails?.DOB
-                ? new Date(app.applicationgeneraldetails.DOB).toLocaleDateString()
-                : "N/A";
-                const age = this.calculateAge(app.applicationgeneraldetails?.DOB) || "-";
-                const dobAndAge = `${dob}\n(${age} yrs)`;
+    // === Create worksheet data header ===
+    const worksheetData = [
+        ["GAMPAHA WICKRAMARACHCHI UNIVERSITY OF INDIGENOUS MEDICINE, SRI LANKA"],
+        ["RECRUITMENT FOR INTERVIEW SUMMARY"],
+        [""],
+        [`Interview Date: ${this.interview.date}`, `Venue: ${this.interview.venue}`, `Time: ${this.interview.time}`],
+        [""],
+        [
+            "App No.",
+            "Full Name & Address",
+            "Date of Birth & Age",
+            "Educational Qualifications (incl. O/L & A/L)",
+            "Professional Qualifications",
+            "Research & Publications",
+            "Employment Details",
+            "Academic Distinctions",
+            "Professional Experience",
+            "Extra-Curricular Activities"
+        ]
+    ];
 
-                const fullNameAndAddress = `${app.FullName || "N/A"}\n${app.applicationgeneraldetails?.PresentAddress || "N/A"}\n${app.Email || "N/A"}\n${app.applicationgeneraldetails?.PhoneNumber || "N/A"}`;
+    // === Add each applicant as a row ===
+    this.filteredApplications.forEach((app) => {
+        const dob = app.applicationgeneraldetails?.DOB
+            ? new Date(app.applicationgeneraldetails.DOB).toLocaleDateString()
+            : "N/A";
+        const age = this.calculateAge(app.applicationgeneraldetails?.DOB) || "-";
+        const dobAndAge = `${dob}\n(${age} yrs)`;
 
-                const education = formatList(app.universityeducations, edu =>
-                `${edu.DegreeOrDiploma || ""} (${edu.Institute || "N/A"})`
-                );
+        const fullNameAndAddress = `${app.FullName || "N/A"}\n\n${app.applicationgeneraldetails?.PresentAddress || ""}\n\n${app.Email || ""}\n\n${app.applicationgeneraldetails?.PhoneNumber || ""}\n\n${app.applicationgeneraldetails?.NIC || ""}`;
 
-                const professionalQuals = formatList(app.professionalqualifications, pq =>
-                `${pq.QualificationName || ""} (${pq.Institution || "N/A"})`
-                );
+        // === Education (University, O/L, A/L) ===
+        const education = formatList(app.universityeducations, edu =>
+            `${edu.DegreeOrDiploma || ""} (${edu.Institute || "N/A"})`
+        );
 
-                const research = formatList(app.researchandpublications, rp => rp.Description);
+        const olResults = app.gce_ol_results && app.gce_ol_results.length
+            ? `O/L Results:\n${app.gce_ol_results.map(r => `${r.Subject} (${r.Grade})`).join(", ")}`
+            : "O/L Results: N/A";
 
-                const currentEmployment = app.employmenthistories?.find(emp => !emp.ToDate);
-                let presentPostInfo = "N/A";
-                if (currentEmployment) {
-                const fromDate = currentEmployment.FromDate
-                    ? new Date(currentEmployment.FromDate).toLocaleDateString()
-                    : "N/A";
-                const salary = currentEmployment.LastSalary
-                    ? `Rs. ${currentEmployment.LastSalary}`
-                    : "N/A";
-                presentPostInfo = `${currentEmployment.PostHeld || "N/A"} at ${currentEmployment.Institution || "N/A"} (${fromDate} - Present) - ${salary}`;
-                }
+        const alResults = app.gce_al_results && app.gce_al_results.length
+            ? `A/L Results:\n${app.gce_al_results.map(r => `${r.Subject} (${r.Grade})`).join(", ")}`
+            : "A/L Results: N/A";
 
-                const experience = formatList(app.experiencedetails, exp => exp.Description);
-                const extraCurricular = formatList(app.specialqualifications, sq => sq.Description);
+        const educationField = `${education}\n\n${olResults}\n\n${alResults}`;
 
-                worksheetData.push([
-                app.ApplicationID,
-                fullNameAndAddress,
-                dobAndAge,
-                education,
-                professionalQuals,
-                research,
-                presentPostInfo,
-                "N/A", // Academic distinctions placeholder
-                experience,
-                extraCurricular
-                ]);
-            });
+        // === Professional Qualifications ===
+        const professionalQuals = formatList(app.professionalqualifications, pq =>
+            `${pq.QualificationName || ""} (${pq.Institution || "N/A"})`
+        );
 
-            // === Create sheet and style ===
-            const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+        // === Research & Publications ===
+        const research = formatList(app.researchandpublications, rp => rp.Description);
 
-            // Merge header rows
-            worksheet["!merges"] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
-            ];
+        // === Employment History ===
+        let presentPostInfo = "N/A";
+        if (Array.isArray(app.employmenthistories) && app.employmenthistories.length) {
+            presentPostInfo = app.employmenthistories
+                .map(emp => {
+                    const fromDate = emp.FromDate ? new Date(emp.FromDate).toLocaleDateString() : "N/A";
+                    const toDate = emp.ToDate ? new Date(emp.ToDate).toLocaleDateString() : "Present";
+                    const post = emp.PostHeld || "N/A";
+                    const institute = emp.Institution || "N/A";
+                    return `${post} at ${institute} (${fromDate} - ${toDate})`;
+                })
+                .join("\n\n");
+        }
 
-            worksheet["!cols"] = [
-                { wch: 10 },
-                { wch: 35 },
-                { wch: 18 },
-                { wch: 30 },
-                { wch: 30 },
-                { wch: 25 },
-                { wch: 30 },
-                { wch: 25 },
-                { wch: 30 },
-                { wch: 25 },
-            ];
+        const experience = formatList(app.experiencedetails, exp => exp.Description);
+        const extraCurricular = formatList(app.specialqualifications, sq => sq.Description);
 
-            // Add worksheet to workbook
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants Summary");
+        worksheetData.push([
+            app.ApplicationID || "N/A",
+            fullNameAndAddress,
+            dobAndAge,
+            educationField,
+            professionalQuals,
+            research,
+            presentPostInfo,
+            "N/A", // Placeholder for Academic Distinction
+            experience,
+            extraCurricular
+        ]);
+    });
 
-            // === Download ===
-            const excelBuffer = XLSX.write(workbook, {
-                bookType: "xlsx",
-                type: "array",
-            });
-            const blob = new Blob([excelBuffer], {
-                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            });
-            saveAs(blob, `Applicants_Summary_${new Date().toISOString().split("T")[0]}.xlsx`);
+    // === Add Printed Info at Bottom ===
+    worksheetData.push([]);
+    worksheetData.push([`Printed by: ${printedBy} (${printedEmail}) - ${printedDept}`]);
+    worksheetData.push([`Printed on: ${printTime}`]);
 
-            const modalEl = document.getElementById("interviewSheetModal");
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
+    // === Create sheet and style ===
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // Merge header rows
+    worksheet["!merges"] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
+    ];
+
+    // Column widths
+    worksheet["!cols"] = [
+        { wch: 10 },
+        { wch: 40 },
+        { wch: 18 },
+        { wch: 35 },
+        { wch: 35 },
+        { wch: 35 },
+        { wch: 35 },
+        { wch: 25 },
+        { wch: 35 },
+        { wch: 25 },
+    ];
+
+    // === Append and Save ===
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Interview Summary");
+
+    const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, `Interview_Summary_${new Date().toISOString().split("T")[0]}.xlsx`);
+
+    // Close modal if open
+    const modalEl = document.getElementById("interviewSheetModal");
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
         },
         generateInterviewPDF() {
+
             if (!this.filteredApplications.length) {
                 Swal.fire("Info", "No applications to print", "info");
                 return;
@@ -701,6 +733,10 @@ export default {
                 const experience = formatList(app.experiencedetails, exp => exp.Description);
                 const extraCurricular = formatList(app.specialqualifications, sq => sq.Description);
 
+                // Academic Distinctions
+                const academicDistinctions = formatList(app.academicdistinctions, ad => ad.Description);
+
+
                 const body = [[
                     app.ApplicationID,
                     fullNameAndAddress,
@@ -709,7 +745,7 @@ export default {
                     professionalQuals,
                     research,
                     presentPostInfo,
-                    "Academic Distinctions N/A",
+                    academicDistinctions,
                     experience,
                     extraCurricular
                 ]];
