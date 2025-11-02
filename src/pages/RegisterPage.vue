@@ -6,7 +6,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-6">
                     <div class="card shadow-lg p-4 rounded-3">
-                        <h2 class="text-center mb-4">Create an Account</h2>
+                        <h2 class="text-center mb-4">Create an Account Here</h2>
 
                         <!-- Register Form -->
                         <form @submit.prevent="handleRegister">
@@ -60,13 +60,13 @@
                             </div>
 
                             <!-- Submit Button -->
-                            <button type="submit" class="btn btn-primary w-100">Register</button>
+                            <button type="submit" class="btn btn-primary w-100">Register <i class="bi bi-person-plus ms-2"></i> </button>
                         </form>
 
                         <!-- Link to Login -->
                         <p class="mt-3 text-center">
                             Already have an account?
-                            <router-link to="/login">Login here</router-link>
+                            <router-link to="/login">Login here </router-link>
                         </p>
                     </div>
                 </div>
@@ -190,15 +190,41 @@ export default {
 
 <style scoped>
 .register-section {
-    background: #f9f9f9;
+    position: relative;
     min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    overflow: hidden; /* ensures blur layer stays within section */
 }
 
-.card {
-    border: none;
+/* background image + blur effect */
+.register-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("/assets/backgroungimage.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(6px); /* adjust blur intensity */
+    transform: scale(1.05);
+    z-index: 0;
+}
+
+/*  keep card above blurred background */
+.register-section .card {
+    position: relative;
+    z-index: 1;
     background: #ffffff;
+    color: #000;
+    border: 3px solid #800000; /* maroon outline */
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(128, 0, 0, 0.3); /* subtle maroon glow */
 }
 
+/* button styling */
 button {
     background-color: #800000;
     border: none;
@@ -208,3 +234,6 @@ button:hover {
     background-color: #a00000;
 }
 </style>
+
+
+

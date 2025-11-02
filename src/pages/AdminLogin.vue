@@ -136,17 +136,42 @@ function handleNavigation(page) {
 
 <style scoped>
 .admin-login-section {
-    background: #f9f9f9;
+    position: relative;
     min-height: 100vh;
     display: flex;
     align-items: center;
+    justify-content: center;
+    color: #fff;
+    overflow: hidden; /* keeps blur contained */
 }
 
-.card {
-    border: none;
+/* ✅ blurred background image */
+.admin-login-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("/assets/backgroungimage.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(6px);
+    transform: scale(1.05); /* avoids edge artifacts */
+    z-index: 0;
+}
+
+/* ✅ admin login card with maroon border and shadow */
+.admin-login-section .card {
+    position: relative;
+    z-index: 1;
     background: #ffffff;
+    color: #000;
+    border: 3px solid #660B05; /* maroon outline */
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(102, 11, 5, 0.3);
+    opacity: 0.97;
 }
 
+/* ✅ button styles */
 button.btn-primary {
     background-color: #660B05;
     border: none;
@@ -156,3 +181,4 @@ button.btn-primary:hover {
     background-color: #9c1f1f;
 }
 </style>
+

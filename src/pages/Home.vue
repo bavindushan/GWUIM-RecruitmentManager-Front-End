@@ -7,14 +7,19 @@
         <section class="hero text-center d-flex flex-column justify-content-center">
             <div class="container">
                 <img src="../assets/logo.png" alt="GWUIM Logo" class="logo-img mb-3" />
-                <h1 class="display-5 fw-bold text-white mb-3">Welcome to GWUIM Recruitment System</h1>
+                <h1 class="display-5 fw-bold text-white mb-3">Welcome to GWUIM Recruitments</h1>
                 <p class="lead text-light mb-4">
                     Apply for jobs, track your applications, and monitor progress all in one platform.
                 </p>
                 <div>
-                    <router-link to="/login" class="btn btn-outline-light btn-lg me-2">Login</router-link>
-                    <router-link to="/register" class="btn btn-light btn-lg text-primary">Register</router-link>
+                    <router-link to="/login" class="btn btn-outline-light btn-lg me-2">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Sign In
+                    </router-link>
+                    <router-link to="/register" class="btn btn-light btn-lg text-primary">
+                        <i class="bi bi-person-plus me-2"></i> Sign Up
+                    </router-link>
                 </div>
+
             </div>
         </section>
 

@@ -5,9 +5,14 @@
     <!-- 2. GCE O/L Results -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
-        <h5 class="fw-bold mb-4">
-          <i class="bi bi-file-text me-2"></i> GCE O/L Results
-        </h5>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-0">
+            <i class="bi bi-file-text me-2"></i> GCE O/L Results
+          </h5>
+          <h6 class="text-danger mb-0">
+            (*Please add all results before saving*)
+          </h6>
+        </div>
         <div v-for="(ol, index) in olResults" :key="index" class="row g-2 mb-2">
           <div class="col-md-3">
             <input
@@ -53,9 +58,14 @@
     <!-- 3. GCE A/L Results -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
-        <h5 class="fw-bold mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-4">
           <i class="bi bi-file-text me-2"></i> GCE A/L Results
         </h5>
+        <h6 class="text-danger mb-0">
+            (*Please add all results before saving*)
+        </h6>
+        </div>
         <div v-for="(al, index) in alResults" :key="index" class="row g-2 mb-2">
           <div class="col-md-3">
             <input
@@ -101,9 +111,14 @@
     <!-- 4. University Education -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
-        <h5 class="fw-bold mb-4">
-          <i class="bi bi-mortarboard me-2"></i> University Education
-        </h5>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-mortarboard me-2"></i> University Education
+          </h5>
+          <h6 class="text-danger mb-0">
+              (*Please add all educations before saving*)
+          </h6>
+        </div>
         <div
           v-for="(edu, index) in universityEducations"
           :key="index"
@@ -146,7 +161,7 @@
               type="text"
               v-model="edu.Class"
               class="form-control"
-              placeholder="Class"
+              placeholder="Class with GPA"
             />
           </div>
           <div class="col-md-2">
@@ -188,9 +203,14 @@
     <!-- 5. Professional Qualifications -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
-        <h5 class="fw-bold mb-4">
-          <i class="bi bi-award me-2"></i> Professional Qualifications
-        </h5>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-award me-2"></i> Professional Qualifications
+          </h5>
+          <h6 class="text-danger mb-0">
+                (*Please add all qualifications with durations before saving*)
+          </h6>
+        </div>
         <div
           v-for="(pq, index) in professionalQualifications"
           :key="index"
@@ -233,7 +253,7 @@
               type="text"
               v-model="pq.ResultOrExamPassed"
               class="form-control"
-              placeholder="Result / Exam Passed"
+              placeholder="Result / Class"
             />
           </div>
           <div class="col-md-1 d-flex justify-content-center">
@@ -259,10 +279,14 @@
     <!-- 8. Employment Records -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
-        <h5 class="fw-bold mb-4">
-          <i class="bi bi-building me-2"></i> Employment Records
-        </h5>
-
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-building me-2"></i> Employment Records
+          </h5>
+          <h6 class="text-danger mb-0">
+                (*Please add all records before saving*)
+          </h6>
+        </div>
         <table class="table table-bordered table-striped">
           <thead class="table-light">
             <tr>
@@ -326,9 +350,14 @@
     <!-- 6. Experience Details -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
-        <h5 class="fw-bold mb-4">
-          <i class="bi bi-briefcase me-2"></i> Experiences Related to the Job
-        </h5>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-briefcase me-2"></i> Experiences Related to the Job
+          </h5>
+          <h6 class="text-danger mb-0">
+                (*Please add all experiences before saving*)
+          </h6>
+        </div>
         <div
           v-for="(exp, index) in experienceDetails"
           :key="index"
@@ -362,9 +391,15 @@
     <!-- 7. Special Qualifications -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
-        <h5 class="fw-bold mb-4">
-          <i class="bi bi-star me-2"></i> Special Qualifications / Extra-curricular
-        </h5>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-star me-2"></i> Special Qualifications / Extra-curricular
+          </h5>
+          <h6 class="text-danger mb-0">
+                (*Please add all qualifications before saving*)
+          </h6>
+        </div>
+        
         <div
           v-for="(sq, index) in specialQualifications"
           :key="index"
@@ -398,10 +433,15 @@
     <!-- 8. Non-Related Referees -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
       <div class="card-body p-4 p-md-5">
-        <h5 class="fw-bold mb-4">
-          <i class="bi bi-people me-2"></i> Non-Related Referees
-        </h5>
-
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-people me-2"></i> Non-Related Referees
+          </h5>
+          <h6 class="text-danger mb-0">
+                (*Please add all referees before saving*)
+          </h6>
+        </div>
+        
         <div
           v-for="(ref, index) in references"
           :key="index"
@@ -492,7 +532,8 @@
         <i class="bi bi-download me-2"></i> Download Application and Complete
         Submission <br />
         (Applying via Post is Mandatory!!) <br />
-        තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
+        (තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!)
+        
       </button>
 
       <!-- Download and Complete Submission Button (Non-Academic) -->
@@ -503,6 +544,14 @@
                 තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
             </a> -->
     </div>
+
+    <div class="text-center my-4">
+      <h1 class="text-danger fw-bold">
+        (Applying via Post is Mandatory!!) <br />
+        තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
+      </h1>
+    </div>
+    
   </div>
 </template>
 

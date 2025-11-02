@@ -47,10 +47,12 @@
         <!-- Step 1: General Details -->
         <div v-if="currentStep === 1" class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-4 p-md-5">
-                <h5 class="fw-bold mb-4">
-                    <i class="bi bi-person-vcard me-2"></i>
-                    General Details
-                </h5>
+                <div class="d-flex align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-person-vcard me-2"></i> General Details
+                    </h5>
+                    <h6 class="text-danger ms-4 mt-1">(*All fields are mandatory*)</h6>
+                </div>
 
                 <form @submit.prevent="saveGeneralDetails" class="row g-3">
                     <!-- Post Applied (Read-only) -->
@@ -161,7 +163,10 @@
                     </div>
 
                     <!-- Action -->
-                    <div class="col-12 d-flex justify-content-end mt-2">
+                    <div class="col-12 d-flex justify-content-between align-items-center mt-3">
+                        <h6 class="text-danger mb-0">
+                            (*Please verify all details before saving*)
+                        </h6>
                         <button type="submit" class="btn btn-success btn-lg px-4">
                             <i class="bi bi-save me-2"></i> Save & Continue
                         </button>

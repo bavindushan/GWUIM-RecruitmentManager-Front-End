@@ -6,7 +6,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-6">
                     <div class="card shadow-lg p-4 rounded-3">
-                        <h2 class="text-center mb-4">Login</h2>
+                        <h2 class="text-center mb-4">Sign In Here</h2>
 
                         <!-- Login Form -->
                         <form @submit.prevent="handleLogin">
@@ -25,7 +25,10 @@
                             </div>
 
                             <!-- Submit Button -->
-                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                            <button type="submit" class="btn btn-primary w-100">
+                                Login <i class="bi bi-box-arrow-in-right ms-2"></i>
+                            </button>
+                            
                         </form>
 
                         <!-- Link to Register -->
@@ -134,13 +137,39 @@ const handleLogin = async () => {
 
 <style scoped>
 .register-section {
-    background: #f9f9f9;
+    position: relative;
     min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    overflow: hidden; /* keeps blur contained */
 }
 
-.card {
-    border: none;
+/* ✅ blurred background image */
+.register-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("/assets/backgroungimage.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(6px);
+    transform: scale(1.05); /* avoids edge artifacts */
+    z-index: 0;
+}
+
+/* ✅ login card with maroon border and shadow */
+.register-section .card {
+    position: relative;
+    z-index: 1;
     background: #ffffff;
+    color: #000;
+    border: 3px solid #800000; /* maroon outline */
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(128, 0, 0, 0.3);
+    opacity: 0.97;
 }
 
 button {
@@ -152,3 +181,4 @@ button:hover {
     background-color: #a00000;
 }
 </style>
+

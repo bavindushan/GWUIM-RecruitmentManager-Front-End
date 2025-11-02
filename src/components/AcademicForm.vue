@@ -713,6 +713,15 @@
         තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
       </a> -->
     </div>
+
+    <div class="text-center my-4">
+      <h1 class="text-danger fw-bold">
+        (Applying via Post is Mandatory!!) <br />
+        තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
+      </h1>
+    </div>
+
+
   </div>
 </template>
 
