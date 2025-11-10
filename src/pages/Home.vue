@@ -89,7 +89,7 @@
         </section>
 
         <!-- Testimonial Section -->
-        <section class="testimonial-section py-6 bg-gradient-light">
+        <!-- <section class="testimonial-section py-6 bg-gradient-light">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-lg-6">
@@ -118,7 +118,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <!-- Call-to-Action Section -->
         <section class="cta-section text-center py-6 position-relative overflow-hidden">
