@@ -55,6 +55,7 @@
                         <option value="Department of Indigenous Social Sciences">Department of Indigenous Social Sciences</option>
                         <option value="Department of Management Studies">Department of Management Studies</option>
                         <option value="Department of Information Technology">Department of Information Technology</option>
+                        <option value="Department of DV/K&SR/SS/RV/DC/C">Department of DV/K&SR/SS/RV/DC/C</option>
                         <option value="Other">Other</option>
                         <option value="Admin">Admin</option>
                 </select>

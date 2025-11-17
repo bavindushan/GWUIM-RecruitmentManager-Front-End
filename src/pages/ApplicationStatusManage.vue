@@ -239,9 +239,16 @@
                         <button class="btn btn-success" @click="changeStatus">
                             <i class="bi bi-check-circle"></i> Update Status
                         </button>
-                        <button class="btn btn-warning" @click="downloadApplication">
-                            <i class="bi bi-download"></i> Download Application
+                        <button 
+                            class="btn btn-warning"
+                            @click="downloadApplication"
+                            :disabled="isDownloading"
+                        >
+                            <i class="bi bi-download"></i>
+                            <span v-if="!isDownloading">Download Application</span>
+                            <span v-else>Preparing PDF...</span>
                         </button>
+
                         <button class="btn btn-info text-white" @click="downloadCV">
                             <i class="bi bi-file-earmark-arrow-down"></i> Download CV
                         </button>
@@ -388,28 +395,86 @@ export default {
             }
         },
         async downloadApplication() {
+            const appId = this.selectedApp.ApplicationID;
+            const token = localStorage.getItem("adminToken");
+            const url = `/api/applications-print/download/${appId}`;
+
+            this.isDownloading = true;
+
+            // SweetAlert loading popup
+            Swal.fire({
+                title: "Preparing Application PDF...",
+                html: `
+                    <div style="font-size: 14px; margin-bottom: 10px;">
+                        Fetching application data...<br>
+                        Please wait.
+                    </div>
+                    <div id="progressText">Loading: 1%</div>
+                `,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+
+                    // Fake progress loader
+                    let progress = 1;
+                    const interval = setInterval(() => {
+                        progress += 1;
+                        if (progress > 100) progress = 100;
+
+                        document.getElementById("progressText").innerText = `Loading: ${progress}%`;
+
+                        if (progress === 100) clearInterval(interval);
+                    }, 1800); // 1800ms × 100 = 180,000ms (3 minutes)
+
+
+
+                    Swal._progressInterval = interval;
+                },
+            });
+
             try {
-                const token = localStorage.getItem("adminToken"); // Get admin token
-                const response = await api.get(`/api/applications-print/download/${this.selectedApp.ApplicationID}`, {
+                const response = await api.get(url, {
                     responseType: "blob",
                     headers: {
-                        Authorization: `Bearer ${token}`, // Attach token like in Postman
+                        Authorization: `Bearer ${token}`,
                     },
                 });
 
-                // Create a download link for the file
-                const url = window.URL.createObjectURL(new Blob([response.data]));
+                clearInterval(Swal._progressInterval);
+                Swal.close();
+
+                const blob = new Blob([response.data], { type: "application/pdf" });
+                const downloadUrl = window.URL.createObjectURL(blob);
+
                 const link = document.createElement("a");
-                link.href = url;
-                link.setAttribute("download", `application_${this.selectedApp.ApplicationID}.pdf`);
+                link.href = downloadUrl;
+                link.download = `Application_${appId}.pdf`;
                 document.body.appendChild(link);
                 link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
+                link.remove();
+
+                await Swal.fire({
+                    icon: "success",
+                    title: "Download Completed!",
+                    text: "The application PDF has been downloaded successfully.",
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+
             } catch (err) {
                 console.error("Download error:", err);
-                Swal.fire("Error", "Failed to download application", "error");
+
+                clearInterval(Swal._progressInterval);
+                Swal.close();
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Download Failed",
+                    text: "Unable to generate the application PDF. Please try again.",
+                });
             }
+
+            this.isDownloading = false;
         },
         async downloadCV() {
             try {

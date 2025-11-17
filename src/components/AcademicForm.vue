@@ -694,12 +694,22 @@
     <!-- Actions: Delete & Download -->
     <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
       <!-- Download and Complete Submission Button -->
-      <button class="btn btn-success btn-lg" @click="DownloadandComplete">
-        <i class="bi bi-download me-2"></i> Download Application and Complete
-        Submission <br />
-        (Applying via Post is Mandatory!!) <br />
-        තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
-      </button>
+      <button
+        class="btn btn-success btn-lg"
+        @click="DownloadandComplete"
+        :disabled="isDownloading"
+      >
+        <i class="bi bi-download me-2"></i>
+        <span v-if="!isDownloading">
+            Download Application and Complete Submission <br />
+            (Applying via Post is Mandatory!!) <br />
+            තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
+        </span>
+        <span v-else>
+            Preparing PDF...
+        </span>
+    </button>
+
 
       <!-- Download Empty Application Button (Academic) -->
       <!-- <a
@@ -755,6 +765,7 @@ export default {
       transcriptFile: null,
       transcriptFilePath: "",
       loading: false,
+      isDownloading: false,
 
       newUniversity: {
         DegreeOrDiploma: "",
@@ -1321,14 +1332,50 @@ export default {
       }
     },
     async DownloadandComplete() {
-      try {
-        const appId = parseInt(this.applicationId);
-        const url = `/api/applications-print/download/${appId}`;
+      const appId = parseInt(this.applicationId);
+      const url = `/api/applications-print/download/${appId}`;
 
-        // Call API using api.js instance
+      // Disable button
+      this.isDownloading = true;
+
+      // SweetAlert loading popup
+      Swal.fire({
+        title: "Preparing Your PDF...",
+        html: `
+          <div style="font-size: 14px; margin-bottom: 10px;">
+            Generating your application...<br>
+            Please wait, this may take a moment.
+          </div>
+          <div id="progressText">Loading: 1%</div>
+        `,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+
+          // Fake progress loader
+          let progress = 1;
+          const progressInterval = setInterval(() => {
+            progress += 3;
+            if (progress > 100) progress = 100;
+
+            document.getElementById("progressText").innerText = `Loading: ${progress}%`;
+          }, 150);
+
+          // Store interval so we can stop it
+          Swal._progressInterval = progressInterval;
+        },
+      });
+
+      try {
         const response = await api.get(url, { responseType: "blob" });
 
-        // Create a link to download the file
+        // Stop fake progress
+        clearInterval(Swal._progressInterval);
+
+        // Close the loading swal
+        Swal.close();
+
+        // Create PDF file and trigger download
         const blob = new Blob([response.data], { type: "application/pdf" });
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -1338,22 +1385,33 @@ export default {
         link.click();
         link.remove();
 
-        // Show success alert and wait before redirect
+        // Success message
         await Swal.fire({
           icon: "success",
-          title: "Downloaded!",
-          text: "Your application has been downloaded successfully.",
+          title: "Download Completed!",
+          text: "Your application PDF has been downloaded successfully.",
           timer: 2000,
           showConfirmButton: false,
-          didClose: () => {
-            // Redirect only after alert closes
-            this.$router.push({ name: "dashboard" });
-          },
         });
+
+        // Redirect after success
+        this.$router.push({ name: "dashboard" });
+
       } catch (err) {
         console.error(err);
-        Swal.fire("Error!", "Failed to download application.", "error");
+
+        clearInterval(Swal._progressInterval);
+        Swal.close();
+
+        Swal.fire({
+          icon: "error",
+          title: "Download Failed",
+          text: "Unable to generate your application PDF. Please try again.",
+        });
       }
+
+      // Re-enable button
+      this.isDownloading = false;
     },
   },
 };

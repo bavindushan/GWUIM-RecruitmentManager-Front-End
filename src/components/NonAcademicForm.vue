@@ -60,11 +60,11 @@
       <div class="card-body p-4 p-md-5">
         <div class="d-flex align-items-center justify-content-between mb-3">
           <h5 class="fw-bold mb-4">
-          <i class="bi bi-file-text me-2"></i> GCE A/L Results
-        </h5>
-        <h6 class="text-danger mb-0">
+            <i class="bi bi-file-text me-2"></i> GCE A/L Results
+          </h5>
+          <h6 class="text-danger mb-0">
             (*Please add all results before saving*)
-        </h6>
+          </h6>
         </div>
         <div v-for="(al, index) in alResults" :key="index" class="row g-2 mb-2">
           <div class="col-md-3">
@@ -116,7 +116,7 @@
             <i class="bi bi-mortarboard me-2"></i> University Education
           </h5>
           <h6 class="text-danger mb-0">
-              (*Please add all educations before saving*)
+            (*Please add all educations before saving*)
           </h6>
         </div>
         <div
@@ -208,7 +208,7 @@
             <i class="bi bi-award me-2"></i> Professional Qualifications
           </h5>
           <h6 class="text-danger mb-0">
-                (*Please add all qualifications with durations before saving*)
+            (*Please add all qualifications with durations before saving*)
           </h6>
         </div>
         <div
@@ -284,7 +284,7 @@
             <i class="bi bi-building me-2"></i> Employment Records
           </h5>
           <h6 class="text-danger mb-0">
-                (*Please add all records before saving*)
+            (*Please add all records before saving*)
           </h6>
         </div>
         <table class="table table-bordered table-striped">
@@ -355,7 +355,7 @@
             <i class="bi bi-briefcase me-2"></i> Experiences Related to the Job
           </h5>
           <h6 class="text-danger mb-0">
-                (*Please add all experiences before saving*)
+            (*Please add all experiences before saving*)
           </h6>
         </div>
         <div
@@ -393,13 +393,14 @@
       <div class="card-body p-4 p-md-5">
         <div class="d-flex align-items-center justify-content-between mb-3">
           <h5 class="fw-bold mb-4">
-            <i class="bi bi-star me-2"></i> Special Qualifications / Extra-curricular
+            <i class="bi bi-star me-2"></i> Special Qualifications /
+            Extra-curricular
           </h5>
           <h6 class="text-danger mb-0">
-                (*Please add all qualifications before saving*)
+            (*Please add all qualifications before saving*)
           </h6>
         </div>
-        
+
         <div
           v-for="(sq, index) in specialQualifications"
           :key="index"
@@ -438,10 +439,10 @@
             <i class="bi bi-people me-2"></i> Non-Related Referees
           </h5>
           <h6 class="text-danger mb-0">
-                (*Please add all referees before saving*)
+            (*Please add all referees before saving*)
           </h6>
         </div>
-        
+
         <div
           v-for="(ref, index) in references"
           :key="index"
@@ -528,12 +529,20 @@
             </button> -->
 
       <!-- Download and Complete Submission Button -->
-      <button class="btn btn-success btn-lg" @click="DownloadandComplete">
-        <i class="bi bi-download me-2"></i> Download Application and Complete
-        Submission <br />
-        (Applying via Post is Mandatory!!) <br />
-        (තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!)
-        
+      <button
+        class="btn btn-success btn-lg"
+        @click="DownloadandComplete"
+        :disabled="isDownloading"
+      >
+        <i class="bi bi-download me-2"></i>
+
+        <span v-if="!isDownloading">
+          Download Application and Complete Submission <br />
+          (Applying via Post is Mandatory!!) <br />
+          (තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!)
+        </span>
+
+        <span v-else> Preparing PDF... </span>
       </button>
 
       <!-- Download and Complete Submission Button (Non-Academic) -->
@@ -551,7 +560,6 @@
         තැපෑලෙන් අයදුම් කිරීම අනිවාර්ය වේ!!
       </h1>
     </div>
-    
   </div>
 </template>
 
@@ -574,6 +582,7 @@ export default {
       cvFilePath: "",
       references: [],
       employmentRecords: [],
+      isDownloading: false,
     };
   },
   methods: {
@@ -841,14 +850,45 @@ export default {
       }
     },
     async DownloadandComplete() {
-      try {
-        const appId = parseInt(this.applicationId);
-        const url = `/api/applications-print/download/${appId}`;
+      const appId = parseInt(this.applicationId);
+      const url = `/api/applications-print/download/${appId}`;
 
-        // Call API using api.js instance
+      // Disable button
+      this.isDownloading = true;
+
+      // SweetAlert loading popup with fake progress
+      Swal.fire({
+        title: "Preparing Your PDF...",
+        html: `
+            <div style="font-size: 14px; margin-bottom: 10px;">
+              Generating your application...<br>
+              Please wait, this may take a moment.
+            </div>
+            <div id="progressText">Loading: 1%</div>
+          `,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+
+          let progress = 1;
+          const interval = setInterval(() => {
+            progress += 3;
+            if (progress > 100) progress = 100;
+
+            const el = document.getElementById("progressText");
+            if (el) el.innerText = `Loading: ${progress}%`;
+          }, 150);
+
+          Swal._progressInterval = interval;
+        },
+      });
+
+      try {
         const response = await api.get(url, { responseType: "blob" });
 
-        // Create a link to download the file
+        clearInterval(Swal._progressInterval);
+        Swal.close();
+
         const blob = new Blob([response.data], { type: "application/pdf" });
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -858,21 +898,28 @@ export default {
         link.click();
         link.remove();
 
-        // Show success alert and wait before redirect
         await Swal.fire({
           icon: "success",
           title: "Downloaded!",
           text: "Your application has been downloaded successfully.",
           timer: 2000,
           showConfirmButton: false,
-          didClose: () => {
-            // Redirect only after alert closes
-            this.$router.push({ name: "/dashboard" });
-          },
         });
+
+        this.$router.push({ name: "dashboard" });
       } catch (err) {
         console.error(err);
-        Swal.fire("Error!", "Failed to download application.", "error");
+
+        clearInterval(Swal._progressInterval);
+        Swal.close();
+
+        Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "Failed to download application.",
+        });
+      } finally {
+        this.isDownloading = false;
       }
     },
   },
